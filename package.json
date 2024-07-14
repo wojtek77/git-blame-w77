@@ -1,0 +1,59 @@
+{
+  "name": "git-blame-w77",
+  "displayName": "Git Blame W77",
+  "description": "It is an extension for VS code, which can show git blame in editor and can run git gui blame.",
+  "publisher": "W77",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.73.0"
+  },
+  "repository": {
+    "url": "https://github.com/wojtek77/git-blame-w77"
+  },
+  "bugs": {
+    "url": "https://github.com/wojtek77/git-blame-w77/issues"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension.js",
+  "icon": "git.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "gitBlameW77.runGitGuiBlameForHash",
+        "title": "Run Git Gui Blame For Line (hash)"
+      },
+      {
+        "command": "gitBlameW77.runGitGuiBlameForFile",
+        "title": "Run Git Gui Blame For File"
+      },
+      {
+        "command": "gitBlameW77.toggleBlameDecoration",
+        "title": "Toggle Blame Decoration"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.73.0",
+    "@types/mocha": "^10.0.7",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^7.14.1",
+    "@typescript-eslint/parser": "^7.11.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.4.5",
+    "@vscode/test-cli": "^0.0.9",
+    "@vscode/test-electron": "^2.4.0"
+  }
+}
