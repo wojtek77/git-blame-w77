@@ -43,10 +43,8 @@ export class GitBlame {
             const error = (e as Error);
             if (error.message.includes('git')) {
                 vscode.window.showInformationMessage('No git repository');
-                // console.log('No git repository');
             } else {
                 vscode.window.showErrorMessage(error.message);
-                console.log(error);
             }
         }
         return [];
@@ -57,15 +55,18 @@ export class GitBlame {
         const matches = [...blameText.matchAll(pattern)];
         let blameData: BlameData[] = [];
         matches.forEach(function(v,k) {
-            const lineNo = k+1;
-            blameData[lineNo] = {
-                hash: v[1],
-                email: v[2],
-                timestamp: v[3] as unknown as number,
-                timezone: v[4],
-                line: v[5] as unknown as number,
-                text: v[6]
-            } as BlameData;
+            const hash = v[1];
+            if (hash.match(/[1-9a-f]/)) {
+                const line = k+1;
+                blameData[line] = {
+                    hash: hash,
+                    email: v[2],
+                    timestamp: v[3] as unknown as number,
+                    timezone: v[4],
+                    line: v[5] as unknown as number,
+                    text: v[6]
+                } as BlameData;
+            }
         });
         return blameData;
     }

@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { GitBlame, BlameData } from './GitBlame';
-import { Util } from './Util';
+import { DecorationDataAllClean } from './DecorationDataAllClean';
+import { DecorationDataAllDirty } from './DecorationDataAllDirty';
+import { DecorationDataOneDirty } from './DecorationDataOneDirty';
 
 /**
  * Represents blame decoration use in vscode
@@ -9,8 +11,10 @@ import { Util } from './Util';
 export class BlameDecoration {
     public activeEditor?: vscode.TextEditor;
     public isOpen: boolean = false;
+    public lastSavedVersion?: number;
     private blameDecorationType: vscode.TextEditorDecorationType;
     private blameData: BlameData[] = []; // cache
+    private decoration: vscode.DecorationOptions[] = []; // cache 
     
     public constructor() {
         this.activeEditor = vscode.window.activeTextEditor;
@@ -26,105 +30,53 @@ export class BlameDecoration {
     public toggleBlameDecoration() {
         this.isOpen = !this.isOpen;
         if (this.isOpen) {
-            this.openBlameDecoration();
+            this.openBlameDecoration(true);
         } else {
             this.activeEditor?.setDecorations(this.blameDecorationType, []);
         }
     }
     
-    public async openBlameDecoration() {
+    public async openBlameDecoration(useCache: boolean) {
         if (this.isOpen && this.activeEditor) {
-            const decoration = await this.getBlamedDecoration(this.activeEditor.document);
-            if (decoration) {
-                this.activeEditor.setDecorations(this.blameDecorationType, decoration);
-                this.isOpen = true;
-                return;
-            }
+            const decoration = await this.getDecorationDataAll(this.activeEditor.document, useCache);
+            this.activeEditor.setDecorations(this.blameDecorationType, decoration);
         }
-        this.isOpen = false;
     }
     
-    private async getBlamedDecoration(document: vscode.TextDocument) {
-        if (!this.blameData.length || !document.isDirty) {
-            this.blameData = await GitBlame.getInstance().getBlameData(document.fileName);
-            if (!this.blameData.length) {
-                return;
+    public async updateBlameDecoration(contentChanges: readonly vscode.TextDocumentContentChangeEvent[]) {
+        if (this.isOpen && this.activeEditor) {
+            const decoration = this.getDecorationDataOne(this.activeEditor.document, contentChanges);
+            if (decoration) {
+                this.activeEditor.setDecorations(this.blameDecorationType, decoration);
             }
         }
-        const blameData = structuredClone(this.blameData);
-        const editorData = this.getEditorData(document);
-        const decoration: vscode.DecorationOptions[] = [];
-        const linecount = document.lineCount || 0;
-        const util = Util.getInstance();
-        const noBreakSpace = String.fromCharCode(160);
-        const emptyLine = noBreakSpace.repeat(29);
-        for (let i = 1; i <= linecount; ++i) {
-            const startPos = new vscode.Position(i-1, 0);
-            const endPos = new vscode.Position(i-1, 0);
-            const range = new vscode.Range(startPos, endPos);
-            
-            const key = this.findData(i, blameData, editorData);
-            let rec;
-            if (key) {
-                rec = blameData[key];
-                delete blameData[key];
-            } else {
-                rec = undefined;
-            }
-            
-            const decorationOptions: vscode.ThemableDecorationAttachmentRenderOptions = {
-                contentText: (rec && rec.hash.match(/[1-9a-f]/))
-                    ? util.fillAndTruncate(rec.hash, 7, noBreakSpace)
-                        +' '
-                        /* https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format */
-                        +new Date(rec.timestamp * 1000).toLocaleDateString('en-CA')
-                        +' '
-                        +util.fillAndTruncate(rec.email, 7, noBreakSpace, '...')
-                    : emptyLine,
-                // backgroundColor: 'red'
-            };
-            const hoverMessage = new vscode.MarkdownString('foo')
+    }
     
-            decoration.push({
-                range: range,
-                renderOptions: {
-                    before: decorationOptions
-                },
-                // hoverMessage: hoverMessage
-            });
+    private async getDecorationDataAll(document: vscode.TextDocument, useCache: boolean) {
+        /* use cache */
+        if (useCache && this.decoration.length) {
+            return this.decoration;
         }
-
+        
+        /* for dirty document */
+        if (document.isDirty) {
+            return new DecorationDataAllDirty().getData(document);
+        }
+        
+        /* for clean document */
+        this.blameData = await GitBlame.getInstance().getBlameData(document.fileName);
+        if (!this.blameData.length) {
+            throw new Error('Problem with get git blame data');
+        }
+        const decoration = new DecorationDataAllClean().getData(document, this.blameData);
+        this.decoration = decoration;
         return decoration;
     }
     
-    private findData(i: number, blameData: BlameData[], editorData: string[]) {
-        if (blameData[i] && blameData[i].text === editorData[i]) {
-            return i;
-        }
-        // for (let j = 1; j <= blameData.length; ++j) {
-        //     if (blameData[j] && blameData[j].text === editorData[i]) {
-        //         return j;
-        //     }   
-        // }
-        for (let j = i-1; j >= 1; --j) {
-            if (blameData[j] && blameData[j].text === editorData[i]) {
-                return j;
-            }   
-        }
-        for (let j = i+1; j <= blameData.length; ++j) {
-            if (blameData[j] && blameData[j].text === editorData[i]) {
-                return j;
-            }   
-        }
-    }
-    
-    private getEditorData(document: vscode.TextDocument) {
-        let editorData: string[] = [];
-        const data = document.getText().split('\n');
-        const max = data.length;
-        for (let i = 1; i <= max; ++i) {
-            editorData[i] = data[i-1].replace('\r', '');
-        }
-        return editorData;
+    private getDecorationDataOne(document: vscode.TextDocument, contentChanges: readonly vscode.TextDocumentContentChangeEvent[]) {
+        const {blameData, decoration} = new DecorationDataOneDirty().getData(document, this.blameData, this.decoration, contentChanges);
+        this.blameData = blameData;
+        this.decoration = decoration;
+        return decoration;
     }
 }

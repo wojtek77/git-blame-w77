@@ -46,7 +46,6 @@ export class Command {
                 }
                 const cmd = `${cd} ${dirname} && git gui blame --line=${lineNumber} ${hash} ${basename}`;
                 exec(cmd);
-                // console.log(cmd);
             }
         }
     }

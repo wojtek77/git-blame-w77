@@ -38,20 +38,33 @@ export function activate(context: vscode.ExtensionContext) {
             const fileName = editor.document.fileName;
             if (decorations[fileName] !== undefined && decorations[fileName].isOpen) {
                 decorations[fileName].activeEditor = editor;
-                decorations[fileName].openBlameDecoration();
+                decorations[fileName].openBlameDecoration(true);
             }
         }
     }, null, context.subscriptions);
     vscode.workspace.onDidCloseTextDocument(document => {
         delete decorations[document.fileName];
     }, null, context.subscriptions);
+    vscode.workspace.onDidSaveTextDocument(document => {
+        const fileName = document.fileName;
+        if (decorations[fileName].isOpen) {
+            const activeEditor = decorations[fileName].activeEditor;
+            if (activeEditor && document === activeEditor.document) {
+                if (decorations[fileName].lastSavedVersion !== document.version) {
+                    decorations[fileName].lastSavedVersion = document.version;
+                    decorations[fileName].openBlameDecoration(false);
+                }
+            }
+        }
+    }, null, context.subscriptions);
     vscode.workspace.onDidChangeTextDocument(event => {
         const fileName = event.document.fileName;
         if (decorations[fileName].isOpen) {
             const activeEditor = decorations[fileName].activeEditor;
             if (activeEditor && event.document === activeEditor.document) {
-                console.log(event);
-                decorations[event.document.fileName].openBlameDecoration();
+                if (event.contentChanges.length) {
+                    decorations[fileName].updateBlameDecoration(event.contentChanges);
+                }
             }
         }
     }, null, context.subscriptions);
