@@ -54,7 +54,7 @@ export class BlameDecoration {
     
     private async getDecorationDataAll(document: vscode.TextDocument, useCache: boolean) {
         /* use cache */
-        if (useCache && this.decoration.length) {
+        if (useCache && this.decoration.length && this.lastSavedVersion === document.version) {
             return this.decoration;
         }
         
@@ -70,6 +70,7 @@ export class BlameDecoration {
         }
         const decoration = new DecorationDataAllClean().getData(document, this.blameData);
         this.decoration = decoration;
+        this.lastSavedVersion = document.version;
         return decoration;
     }
     

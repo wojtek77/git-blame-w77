@@ -8,6 +8,6 @@ It is an extension for VS code, which can show git blame in editor and can run g
 ![Git Blame screeshot 2](images/screenshot2.png)
 
 ## Commands
-gitBlameW77.runGitGuiBlameForHash: Run Git Gui Blame For Line (hash)
-\gitBlameW77.runGitGuiBlameForFile: Run Git Gui Blame For File
-\gitBlameW77.toggleBlameDecoration: Toggle Blame Decoration
+gitBlameW77.runGitGuiBlameForHash: Run Git Gui Blame For Line (hash)\
+gitBlameW77.runGitGuiBlameForFile: Run Git Gui Blame For File\
+gitBlameW77.toggleBlameDecoration: Toggle Blame Decoration

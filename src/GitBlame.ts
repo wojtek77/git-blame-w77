@@ -56,17 +56,15 @@ export class GitBlame {
         let blameData: BlameData[] = [];
         matches.forEach(function(v,k) {
             const hash = v[1];
-            if (hash.match(/[1-9a-f]/)) {
-                const line = k+1;
-                blameData[line] = {
-                    hash: hash,
-                    email: v[2],
-                    timestamp: v[3] as unknown as number,
-                    timezone: v[4],
-                    line: v[5] as unknown as number,
-                    text: v[6]
-                } as BlameData;
-            }
+            const line = k+1;
+            blameData[line] = {
+                hash: hash,
+                email: v[2],
+                timestamp: v[3] as unknown as number,
+                timezone: v[4],
+                line: v[5] as unknown as number,
+                text: v[6]
+            } as BlameData;
         });
         return blameData;
     }

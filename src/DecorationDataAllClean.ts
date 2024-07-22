@@ -14,7 +14,7 @@ export class DecorationDataAllClean extends DecorationDataBase {
         for (let i = 1; i <= linecount; ++i) {
             const rec = blameData[i];
             let text;
-            if (rec) {
+            if (rec && rec.hash.match(/[1-9a-f]/)) {
                 text = this._lineText(rec);
             } else {
                 text = emptyLine;
