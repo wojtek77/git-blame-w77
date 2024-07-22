@@ -1,32 +1,21 @@
 import * as vscode from 'vscode';
+import { Util } from './Util';
+import { DecorationDataBase } from './DecorationDataBase';
 
 /**
  * Represents data of blame decoration (all lines) for dirty document
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
-export class DecorationDataAllDirty {
+export class DecorationDataAllDirty extends DecorationDataBase {
     public getData(document: vscode.TextDocument) {
         const decoration: vscode.DecorationOptions[] = [];
         const linecount = document.lineCount || 0;
-        for (let i = 1; i <= linecount; ++i) {
-            const startPos = new vscode.Position(i-1, 0);
-            const endPos = new vscode.Position(i-1, 0);
-            const range = new vscode.Range(startPos, endPos);
-            const decorationOptions: vscode.ThemableDecorationAttachmentRenderOptions = {
-                contentText: 'document is not saved',
-                backgroundColor: 'red'
-            };
-            const hoverMessage = new vscode.MarkdownString('foo')
-    
-            decoration.push({
-                range: range,
-                renderOptions: {
-                    before: decorationOptions
-                },
-                // hoverMessage: hoverMessage
-            });
+        for (let i = 1; i < linecount; ++i) {
+            const text = Util.getInstance().fillAndTruncate('*** document is not saved ***', 29, String.fromCharCode(160));
+            const lineDecoration = this._lineDecoration(i-1, text);
+            decoration.push(lineDecoration);
         }
-
+        decoration.push(this._lineDecoration(linecount, this._emptyLine()));
         return decoration;
     }
 }

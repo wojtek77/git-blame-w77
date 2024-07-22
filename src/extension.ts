@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
             const activeEditor = decorations[fileName].activeEditor;
             if (activeEditor && event.document === activeEditor.document) {
                 if (event.contentChanges.length) {
-                    decorations[fileName].updateBlameDecoration(event.contentChanges);
+                    decorations[fileName].openBlameDecoration(false);
                 }
             }
         }
