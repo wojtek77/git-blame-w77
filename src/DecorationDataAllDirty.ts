@@ -15,7 +15,7 @@ export class DecorationDataAllDirty extends DecorationDataBase {
             const lineDecoration = this._lineDecoration(i-1, text);
             decoration.push(lineDecoration);
         }
-        decoration.push(this._lineDecoration(linecount, this._emptyLine()));
+        decoration.push(this._lineDecoration(linecount-1, this._emptyLine()));
         return decoration;
     }
 }

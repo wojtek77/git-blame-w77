@@ -22,15 +22,15 @@ export function activate(context: vscode.ExtensionContext) {
     let decorations: {[key: string]: BlameDecoration} = {};
     
     /* register commands */
-    vscode.commands.registerCommand('gitBlameW77.runGitGuiBlameForHash', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.runGitGuiBlameForHash', () => {
         Command.getInstance().runGitGuiBlameForHash();
-    });
-    vscode.commands.registerCommand('gitBlameW77.runGitGuiBlameForFile', () => {
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.runGitGuiBlameForFile', () => {
         Command.getInstance().runGitGuiBlameForFile();
-    });
-    vscode.commands.registerCommand('gitBlameW77.toggleBlameDecoration', () => {
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.toggleBlameDecoration', () => {
         createDecoration().toggleBlameDecoration();
-    });
+    }));
     
     /* register events */
     vscode.window.onDidChangeActiveTextEditor(editor => {
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
             const fileName = editor.document.fileName;
             if (decorations[fileName] !== undefined && decorations[fileName].isOpen) {
                 decorations[fileName].activeEditor = editor;
-                decorations[fileName].openBlameDecoration(true);
+                decorations[fileName].openBlameDecoration();
             }
         }
     }, null, context.subscriptions);
@@ -51,8 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
             const activeEditor = decorations[fileName].activeEditor;
             if (activeEditor && document === activeEditor.document) {
                 if (decorations[fileName].lastSavedVersion !== document.version) {
-                    decorations[fileName].lastSavedVersion = document.version;
-                    decorations[fileName].openBlameDecoration(false);
+                    decorations[fileName].openBlameDecoration();
                 }
             }
         }
@@ -63,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
             const activeEditor = decorations[fileName].activeEditor;
             if (activeEditor && event.document === activeEditor.document) {
                 if (event.contentChanges.length) {
-                    decorations[fileName].openBlameDecoration(false);
+                    decorations[fileName].updateBlameDecoration(event.contentChanges);
                 }
             }
         }

@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { GitBlame, BlameData } from './GitBlame';
 import { DecorationDataAllClean } from './DecorationDataAllClean';
 import { DecorationDataAllDirty } from './DecorationDataAllDirty';
-import { DecorationDataOneDirty } from './DecorationDataOneDirty';
 
 /**
  * Represents blame decoration use in vscode
@@ -11,10 +10,13 @@ import { DecorationDataOneDirty } from './DecorationDataOneDirty';
 export class BlameDecoration {
     public activeEditor?: vscode.TextEditor;
     public isOpen: boolean = false;
-    public lastSavedVersion?: number;
+    public lastSavedVersion?: number; // for clean document
+    private lastLineCount?: number; // for dirty document
+    private isLastOpenCleanDoc?: boolean; // if last time was opened clean document
     private blameDecorationType: vscode.TextEditorDecorationType;
     private blameData: BlameData[] = []; // cache
     private decoration: vscode.DecorationOptions[] = []; // cache 
+    private decorationDirty: vscode.DecorationOptions[] = []; // cache 
     
     public constructor() {
         this.activeEditor = vscode.window.activeTextEditor;
@@ -30,37 +32,36 @@ export class BlameDecoration {
     public toggleBlameDecoration() {
         this.isOpen = !this.isOpen;
         if (this.isOpen) {
-            this.openBlameDecoration(true);
+            this.openBlameDecoration();
         } else {
             this.activeEditor?.setDecorations(this.blameDecorationType, []);
         }
     }
     
-    public async openBlameDecoration(useCache: boolean) {
-        if (this.isOpen && this.activeEditor) {
-            const decoration = await this.getDecorationDataAll(this.activeEditor.document, useCache);
+    public async openBlameDecoration() {
+        if (this.activeEditor) {
+            const decoration = this.activeEditor.document.isDirty
+                                ? (this.getDecorationDirty(this.activeEditor.document) || this.decorationDirty)
+                                : await this.getDecorationClean(this.activeEditor.document);
             this.activeEditor.setDecorations(this.blameDecorationType, decoration);
         }
     }
     
     public async updateBlameDecoration(contentChanges: readonly vscode.TextDocumentContentChangeEvent[]) {
-        if (this.isOpen && this.activeEditor) {
-            const decoration = this.getDecorationDataOne(this.activeEditor.document, contentChanges);
+        if (this.activeEditor) {
+            const decoration = this.getDecorationDirty(this.activeEditor.document, contentChanges);
             if (decoration) {
                 this.activeEditor.setDecorations(this.blameDecorationType, decoration);
             }
         }
     }
     
-    private async getDecorationDataAll(document: vscode.TextDocument, useCache: boolean) {
-        /* use cache */
-        if (useCache && this.decoration.length && this.lastSavedVersion === document.version) {
-            return this.decoration;
-        }
+    private async getDecorationClean(document: vscode.TextDocument) {
+        this.isLastOpenCleanDoc = true;
         
-        /* for dirty document */
-        if (document.isDirty) {
-            return new DecorationDataAllDirty().getData(document);
+        /* use cache */
+        if (this.lastSavedVersion === document.version) {
+            return this.decoration;
         }
         
         /* for clean document */
@@ -74,10 +75,24 @@ export class BlameDecoration {
         return decoration;
     }
     
-    private getDecorationDataOne(document: vscode.TextDocument, contentChanges: readonly vscode.TextDocumentContentChangeEvent[]) {
-        const {blameData, decoration} = new DecorationDataOneDirty().getData(document, this.blameData, this.decoration, contentChanges);
-        this.blameData = blameData;
-        this.decoration = decoration;
-        return decoration;
+    private getDecorationDirty(document: vscode.TextDocument, contentChanges?: readonly vscode.TextDocumentContentChangeEvent[]) {
+        const isLastOpenCleanDoc = this.isLastOpenCleanDoc;
+        this.isLastOpenCleanDoc = false;
+        
+        if (this.lastLineCount !== document.lineCount) {
+            this.lastLineCount = document.lineCount;
+            this.decorationDirty = new DecorationDataAllDirty().getData(document);
+            return this.decorationDirty;
+        } else if (isLastOpenCleanDoc) {
+            return this.decorationDirty;
+        } else if (contentChanges) { // workaround with wrong present data
+            for (let i = 0; i < contentChanges.length; ++i) {
+                if (contentChanges[i].text.match(/[\r\n]/)) {
+                    return this.decorationDirty;
+                }
+            }
+        }
+        // if is in cache return undefined
+        return;
     }
 }
