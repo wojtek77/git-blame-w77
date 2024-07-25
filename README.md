@@ -14,3 +14,8 @@ It is an extension for VS code, which can show git blame in editor and can run g
 gitBlameW77.runGitGuiBlameForHash | Run Git Gui Blame For Line (hash)
 gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame For File
 gitBlameW77.toggleBlameDecoration | Toggle Blame Decoration
+
+## Configuration
+| name | description |
+| - | - |
+gitBlameW77.colors | Specifies colors for the blame decoration. If use empty array then is setup color 'editor.foreground' from theme.
