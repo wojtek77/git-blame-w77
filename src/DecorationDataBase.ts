@@ -7,19 +7,20 @@ import { Util } from './Util';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataBase {
-    protected _lineDecoration(line: number, contentText: string, backgroundColor = undefined) {
+    protected _lineDecoration(line: number, contentText: string, color?: string, hoverMessage?: vscode.MarkdownString) {
         const startPos = new vscode.Position(line, 0);
         const endPos = new vscode.Position(line, 0);
         const range = new vscode.Range(startPos, endPos);
         const decorationOptions: vscode.ThemableDecorationAttachmentRenderOptions = {
             contentText: contentText,
-            backgroundColor: backgroundColor,
+            color: color,
         };
         return {
             range: range,
             renderOptions: {
                 before: decorationOptions
             },
+            hoverMessage: hoverMessage,
         };
     }
     
@@ -32,6 +33,16 @@ export class DecorationDataBase {
                 +new Date(rec.timestamp * 1000).toLocaleDateString('en-CA')
                 +' '
                 +util.fillAndTruncate(rec.email, 7, noBreakSpace, '...');
+    }
+    
+    protected _lineHoverMessage(rec?: BlameData) {
+        if (rec) {
+            /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
+            const m = new vscode.MarkdownString();
+            m.supportHtml = true;
+            m.appendMarkdown(`#### ${rec.hash} <span style="color:#3691ff;">[${rec.email}]()</span> ${new Date(rec.timestamp * 1000).toLocaleDateString('en-CA')}`);
+            return m;
+        }
     }
     
     protected _emptyLine() {

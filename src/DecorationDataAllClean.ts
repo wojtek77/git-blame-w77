@@ -19,7 +19,8 @@ export class DecorationDataAllClean extends DecorationDataBase {
             } else {
                 text = emptyLine;
             }
-            const lineDecoration = this._lineDecoration(i-1, text);
+            const hoverMessage = this._lineHoverMessage(rec);
+            const lineDecoration = this._lineDecoration(i-1, text, undefined, hoverMessage);
             decoration.push(lineDecoration);
         }
         return decoration;
