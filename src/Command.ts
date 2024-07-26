@@ -36,6 +36,9 @@ export class Command {
                 let hash = '';
                 if (isHash && lineNumber) {
                     const blameData = await GitBlame.getInstance().getBlameData(fileName);
+                    if (blameData === undefined) {
+                        return;
+                    }
                     hash = blameData[lineNumber].hash;
                 }
                 let cd;

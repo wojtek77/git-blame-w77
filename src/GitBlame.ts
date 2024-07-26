@@ -2,12 +2,25 @@ import * as vscode from "vscode";
 import { Util } from "./Util";
 
 export type BlameData = {
-    hash: string;
-    email: string;
-    timestamp: number;
-    timezone: string;
     line: number;
+    hash: string;
+    hash_1: number;
+    hash_2: number;
+    hash_3?: number;
+    author: string;
+    authorMail: string;
+    authorTime: number;
+    authorTz: string;
+    committer: string;
+    committerMail: string;
+    committerTime: number;
+    committerTz: string;
+    summary: string;
+    previousHash?: string;
+    previousFilename?: string;
     text: string;
+    isCommitted: boolean;
+    isDiffAuthorCommitter: boolean;
 };
 
 /**
@@ -24,6 +37,29 @@ export class GitBlame {
     }
 
     public async getBlameData(filePath: string) {
+        /* https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct */
+        const { spawn } = require('child_process');
+        function getChildProcessOutput(program: string, args?: any): Promise<string> {
+            return new Promise((resolve, reject) => {
+                let buf = '';
+                let err = '';
+                const child = spawn(program, args);
+
+                child.stdout.on('data', (data: string) => {
+                    buf += data;
+                });
+                child.stderr.on('data', (data: string) => {
+                    err += data;
+                });
+                child.on('close', (code: any) => {
+                    if (code !== 0) {
+                        return reject(err);
+                    }
+                    resolve(buf);
+                });
+            });
+        }
+        
         const dirname = Util.getInstance().dirname(filePath);
         const basename = Util.getInstance().basename(filePath);
         let cd;
@@ -32,40 +68,89 @@ export class GitBlame {
         } else {
             cd = 'cd';
         }
-
-        const util = require('util');
-        const exec = util.promisify(require('child_process').exec);
+        
         try {
-            const { stdout, stderr } = await exec(`${cd} ${dirname} && git blame --show-email --root --no-show-name --no-show-stats -t ${basename}`);
-            const blameData = this.parse(stdout);
+            const output = await getChildProcessOutput(`${cd} ${dirname} && git blame --line-porcelain ${basename}`, {
+                shell: true
+            });
+            const blameData = this.parse(output as string);
             return blameData;
         } catch (e) {
-            const error = (e as Error);
-            if (error.message.includes('git')) {
+            const error = (e as string);
+            if (error.includes('git')) {
                 vscode.window.showInformationMessage('No git repository');
             } else {
-                vscode.window.showErrorMessage(error.message);
+                vscode.window.showErrorMessage(error);
+                throw e;
             }
         }
-        return [];
     }
 
     private parse(blameText: string) {
-        const pattern = /^([0-9a-f]+) .*\(<(.*)>\s+(\d+) ([+-]\d+)\s+(\d+)\) (.*)$/gm;
-        const matches = [...blameText.matchAll(pattern)];
         let blameData: BlameData[] = [];
-        matches.forEach(function(v,k) {
-            const hash = v[1];
-            const line = k+1;
-            blameData[line] = {
-                hash: hash,
-                email: v[2],
-                timestamp: v[3] as unknown as number,
-                timezone: v[4],
-                line: v[5] as unknown as number,
-                text: v[6]
-            } as BlameData;
-        });
+        const blameArr = blameText.split('\n');
+        blameArr.pop(); // remove last element because it is empty line
+        let line = 1;
+        let chunk = [];
+        let cache: {[key: string]: BlameData} = {};
+        for (let i = 0; i < blameArr.length; ++i) {
+            const l = blameArr[i];
+            chunk.push(l);
+            if (l.charAt(0) === '\t') { // end for chunk
+                const hashArr = chunk[0].split(' ');
+                const hash = hashArr[0];
+                if (cache[hash] === undefined) {
+                    const author = chunk[1].slice(7);
+                    const committer = chunk[5].slice(10);
+                    
+                    // if (line !== +hashArr[2] as unknown as number) {
+                    //     console.log('error: line !== hashArr[2]');
+                    //     throw new Error('line !== hashArr[2]');
+                    // }
+                    
+                    let previousArr;
+                    let text;
+                    switch (chunk.length) {
+                        case 13:
+                            previousArr = chunk[10].split(' ');
+                            text = chunk[12].slice(1);
+                            break;
+                        case 12:
+                            text = chunk[11].slice(1);
+                            break;
+                        default:
+                            throw new Error(`incorrect chunk.length: ${chunk.length}`);
+                    }
+                    cache[hash] = {
+                        line: line,
+                        hash: hash,
+                        hash_1: +hashArr[1],
+                        hash_2: +hashArr[2],
+                        hash_3: hashArr[3] ? +hashArr[3] : undefined,
+                        author: author,
+                        authorMail: chunk[2].slice(12).slice(1,-1),
+                        authorTime: +chunk[3].slice(12),
+                        authorTz: chunk[4].slice(10),
+                        committer: committer,
+                        committerMail: chunk[6].slice(15).slice(1,-1),
+                        committerTime: +chunk[7].slice(15),
+                        committerTz: chunk[8].slice(13),
+                        summary: chunk[9].slice(8),
+                        previousHash: previousArr !== undefined ? previousArr[1] : undefined,
+                        previousFilename: previousArr !== undefined ? previousArr[2] : undefined,
+                        text: text,
+                        isCommitted: hash !== '0000000000000000000000000000000000000000',
+                        isDiffAuthorCommitter: author != committer,
+                    } as BlameData;
+                }
+                
+                blameData[line] = cache[hash]
+                
+                line += 1;
+                chunk = [];
+            }
+        }
+        
         return blameData;
     }
 }

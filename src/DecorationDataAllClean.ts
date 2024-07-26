@@ -7,36 +7,23 @@ import { DecorationDataBase } from './DecorationDataBase';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataAllClean extends DecorationDataBase {
+    public constructor() {
+        super();
+        this.colors = vscode.workspace.getConfiguration('gitBlameW77').colors;
+        this.noRecText = this._emptyLine;
+    }
+    
     public getData(document: vscode.TextDocument, blameData: BlameData[]) {
         const decoration: vscode.DecorationOptions[] = [];
         const linecount = document.lineCount || 0;
-        const emptyLine = this._emptyLine();
-        const colors = vscode.workspace.getConfiguration('gitBlameW77').colors;
-        let hashColors: {[key: string]: string} = {};
-        let j = 0;
-        let lastHash;
         for (let i = 1; i <= linecount; ++i) {
             const rec = blameData[i];
-            let text;
-            let color;
-            if (rec && rec.hash.match(/[1-9a-f]/)) {
-                text = this._lineText(rec);
-                if (rec.hash !== lastHash) {
-                    const k = j % colors.length;
-                    if (colors[k] && hashColors[rec.hash] === undefined) {
-                        hashColors[rec.hash] = colors[k]
-                        j += 1;
-                    }
-                }
-                if (hashColors[rec.hash]) {
-                    color = hashColors[rec.hash];
-                }
-                lastHash = rec.hash;
+            let lineDecoration;
+            if (rec && rec.isCommitted) {
+                lineDecoration = this._lineDecorationRec(rec, i-1);
             } else {
-                text = emptyLine;
+                lineDecoration = this._lineDecorationNoRec(i-1);
             }
-            const hoverMessage = this._lineHoverMessage(rec);
-            const lineDecoration = this._lineDecoration(i-1, text, color, hoverMessage);
             decoration.push(lineDecoration);
         }
         return decoration;

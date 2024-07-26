@@ -8,6 +8,10 @@ It is an extension for VS code, which can show git blame in editor and can run g
 
 ![Git Blame screeshot 2](images/screenshot2.png)
 
+![Git Blame screeshot 3](images/screenshot3.png)
+
+![Git Blame screeshot 4](images/screenshot4.png)
+
 ## Commands
 | name | description |
 | - | - |

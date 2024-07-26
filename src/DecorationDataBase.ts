@@ -7,16 +7,33 @@ import { Util } from './Util';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataBase {
-    protected _lineDecoration(line: number, contentText: string, color?: string, hoverMessage?: vscode.MarkdownString) {
-        const startPos = new vscode.Position(line, 0);
-        const endPos = new vscode.Position(line, 0);
-        const range = new vscode.Range(startPos, endPos);
-        const decorationOptions: vscode.ThemableDecorationAttachmentRenderOptions = {
-            contentText: contentText,
-            color: color,
-        };
+    protected colors = [];
+    private hashColors: {[key: string]: string} = {};
+    private j = 0; // iterator for colors
+    
+    protected noRecText = '';
+    
+    private readonly _noBreakSpace = String.fromCharCode(160);
+    protected readonly _emptyLine = this._noBreakSpace.repeat(29);
+    
+    private cache: {[hash: string]: {decorationOptions: vscode.ThemableDecorationAttachmentRenderOptions, hoverMessage?: vscode.MarkdownString}} = {};
+    
+    protected _lineDecorationRec(rec: BlameData, line: number) {
+        if (this.cache[rec.hash]?.decorationOptions === undefined) {
+            this.cache[rec.hash] = {
+                decorationOptions: {
+                    contentText: this._lineText(rec),
+                    color: this._color(rec),
+                }
+            }
+        }
+        const decorationOptions = this.cache[rec.hash].decorationOptions;
+        if (this.cache[rec.hash].hoverMessage === undefined) {
+            this.cache[rec.hash].hoverMessage = this._lineHoverMessage(rec);
+        }
+        const hoverMessage = this.cache[rec.hash].hoverMessage;
         return {
-            range: range,
+            range: this._range(line),
             renderOptions: {
                 before: decorationOptions
             },
@@ -24,32 +41,75 @@ export class DecorationDataBase {
         };
     }
     
-    protected _lineText(rec: BlameData) {
+    protected _lineDecorationNoRec(line: number) {
+        if (this.cache['']?.decorationOptions === undefined) {
+            this.cache[''] = {
+                decorationOptions: {
+                    contentText: this.noRecText,
+                }
+            }
+        }
+        const decorationOptions = this.cache[''].decorationOptions;
+        return {
+            range: this._range(line),
+            renderOptions: {
+                before: decorationOptions
+            },
+        };
+    }
+    
+    private _range(line: number) {
+        const startPos = new vscode.Position(line, 0);
+        const endPos = new vscode.Position(line, 0);
+        const range = new vscode.Range(startPos, endPos);
+        return range;
+    }
+    
+    private _lineText(rec: BlameData) {
         const util = Util.getInstance();
-        const noBreakSpace = this._noBreakSpace();
+        const noBreakSpace = this._noBreakSpace;
         return util.fillAndTruncate(rec.hash, 7, noBreakSpace)
                 +' '
                 /* https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format */
-                +new Date(rec.timestamp * 1000).toLocaleDateString('en-CA')
+                +new Date(rec.authorTime * 1000).toLocaleDateString('en-CA')
                 +' '
-                +util.fillAndTruncate(rec.email, 7, noBreakSpace, '...');
+                +util.fillAndTruncate(rec.authorMail, 7, noBreakSpace, '...');
     }
     
-    protected _lineHoverMessage(rec?: BlameData) {
-        if (rec) {
-            /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
-            const m = new vscode.MarkdownString();
-            m.supportHtml = true;
-            m.appendMarkdown(`#### ${rec.hash} <span style="color:#3691ff;">[${rec.email}]()</span> ${new Date(rec.timestamp * 1000).toLocaleDateString('en-CA')}`);
-            return m;
+    private _color(rec: BlameData) {
+        if (this.colors.length) {
+            if (this.hashColors[rec.hash] === undefined) {
+                const k = this.j % this.colors.length;
+                this.hashColors[rec.hash] = this.colors[k]
+                this.j += 1;
+            }
+            const color = this.hashColors[rec.hash];
+            return color;
         }
     }
     
-    protected _emptyLine() {
-        return this._noBreakSpace().repeat(29);
-    }
-    
-    private _noBreakSpace() {
-        return String.fromCharCode(160);
+    private _lineHoverMessage(rec: BlameData) {
+        /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
+        const m = new vscode.MarkdownString();
+        m.supportHtml = true;
+        if (rec.isDiffAuthorCommitter) {
+            const dateA = new Date(rec.authorTime * 1000).toLocaleDateString('en-CA');
+            const dateC = new Date(rec.committerTime * 1000).toLocaleDateString('en-CA');
+            m.appendMarkdown(`#### author: ${rec.author} <span style="color:#3691ff;">[${rec.authorMail}]()</span> ${dateA}`);
+            m.appendText('\n');
+            m.appendMarkdown(`#### committer: ${rec.committer} <span style="color:#3691ff;">[${rec.committerMail}]()</span> ${dateA}`);
+            m.appendText('\n');
+            m.appendMarkdown(`${rec.hash}`);
+        } else {
+            const date = new Date(rec.authorTime * 1000).toLocaleDateString('en-CA');
+            m.appendMarkdown(`#### ${rec.author} <span style="color:#3691ff;">[${rec.authorMail}]()</span> ${date}`);
+            m.appendText('\n');
+            m.appendMarkdown(`${rec.hash}`);
+        }
+        if (rec.previousHash) {
+            m.appendText('\n');
+            m.appendMarkdown(`previous: <span style="color:#3691ff;">${rec.previousFilename}</span> ${rec.previousHash}`);
+        }
+        return m;
     }
 }

@@ -43,7 +43,9 @@ export class BlameDecoration {
             const decoration = this.activeEditor.document.isDirty
                                 ? (this.getDecorationDirty(this.activeEditor.document) || this.decorationDirty)
                                 : await this.getDecorationClean(this.activeEditor.document);
-            this.activeEditor.setDecorations(this.blameDecorationType, decoration);
+            if (decoration) {
+                this.activeEditor.setDecorations(this.blameDecorationType, decoration);
+            }
         }
     }
     
@@ -65,10 +67,11 @@ export class BlameDecoration {
         }
         
         /* for clean document */
-        this.blameData = await GitBlame.getInstance().getBlameData(document.fileName);
-        if (!this.blameData.length) {
-            throw new Error('Problem with get git blame data');
+        const blameData = await GitBlame.getInstance().getBlameData(document.fileName);
+        if (blameData === undefined) {
+            return;
         }
+        this.blameData = blameData;
         const decoration = new DecorationDataAllClean().getData(document, this.blameData);
         this.decoration = decoration;
         this.lastSavedVersion = document.version;

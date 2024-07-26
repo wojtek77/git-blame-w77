@@ -7,15 +7,18 @@ import { DecorationDataBase } from './DecorationDataBase';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataAllDirty extends DecorationDataBase {
+    public constructor() {
+        super();
+        this.noRecText = Util.getInstance().fillAndTruncate('*** document is not saved ***', 29, String.fromCharCode(160));
+    }
+    
     public getData(document: vscode.TextDocument) {
         const decoration: vscode.DecorationOptions[] = [];
         const linecount = document.lineCount || 0;
-        for (let i = 1; i < linecount; ++i) {
-            const text = Util.getInstance().fillAndTruncate('*** document is not saved ***', 29, String.fromCharCode(160));
-            const lineDecoration = this._lineDecoration(i-1, text);
+        for (let i = 0; i < linecount; ++i) {
+            const lineDecoration = this._lineDecorationNoRec(i);
             decoration.push(lineDecoration);
         }
-        decoration.push(this._lineDecoration(linecount-1, this._emptyLine()));
         return decoration;
     }
 }
