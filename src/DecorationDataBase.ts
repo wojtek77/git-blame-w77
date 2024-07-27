@@ -106,6 +106,8 @@ export class DecorationDataBase {
             m.appendText('\n');
             m.appendMarkdown(`${rec.hash}`);
         }
+        m.appendText('\n');
+        m.appendMarkdown(`${rec.summary}`);
         if (rec.previousHash) {
             m.appendText('\n');
             m.appendMarkdown(`previous: <span style="color:#3691ff;">${rec.previousFilename}</span> ${rec.previousHash}`);
