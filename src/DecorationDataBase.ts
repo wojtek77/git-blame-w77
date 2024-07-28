@@ -71,7 +71,7 @@ export class DecorationDataBase {
         return util.fillAndTruncate(rec.hash, 7, noBreakSpace)
                 +' '
                 /* https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format */
-                +new Date(rec.authorTime * 1000).toLocaleDateString('en-CA')
+                +util.date(rec.authorTime)
                 +' '
                 +util.fillAndTruncate(rec.authorMail, 7, noBreakSpace, '...');
     }
@@ -89,20 +89,21 @@ export class DecorationDataBase {
     }
     
     private _lineHoverMessage(rec: BlameData) {
+        const util = Util.getInstance();
         /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
         const m = new vscode.MarkdownString();
         m.supportHtml = true;
         if (rec.isDiffAuthorCommitter) {
-            const dateA = new Date(rec.authorTime * 1000).toLocaleDateString('en-CA');
-            const dateC = new Date(rec.committerTime * 1000).toLocaleDateString('en-CA');
-            m.appendMarkdown(`#### author: ${rec.author} <span style="color:#3691ff;">[${rec.authorMail}]()</span> ${dateA}`);
+            const datetimeAuthor = util.datetime(rec.authorTime);
+            const datetimeCommitter = util.datetime(rec.committerTime);
+            m.appendMarkdown(`#### author: ${rec.author} <span style="color:#3691ff;">[${rec.authorMail}]()</span> ${datetimeAuthor}`);
             m.appendText('\n');
-            m.appendMarkdown(`#### committer: ${rec.committer} <span style="color:#3691ff;">[${rec.committerMail}]()</span> ${dateA}`);
+            m.appendMarkdown(`#### committer: ${rec.committer} <span style="color:#3691ff;">[${rec.committerMail}]()</span> ${datetimeCommitter}`);
             m.appendText('\n');
             m.appendMarkdown(`${rec.hash}`);
         } else {
-            const date = new Date(rec.authorTime * 1000).toLocaleDateString('en-CA');
-            m.appendMarkdown(`#### ${rec.author} <span style="color:#3691ff;">[${rec.authorMail}]()</span> ${date}`);
+            const datetime = util.datetime(rec.authorTime);
+            m.appendMarkdown(`#### ${rec.author} <span style="color:#3691ff;">[${rec.authorMail}]()</span> ${datetime}`);
             m.appendText('\n');
             m.appendMarkdown(`${rec.hash}`);
         }

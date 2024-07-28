@@ -47,4 +47,22 @@ export class Util {
     public fillAndTruncate(str: string, maxLength: number, fillString: string, extraText = '') {
         return this.truncate(str.padEnd(maxLength, fillString), maxLength, extraText);
     };
+    
+    /**
+     * Return date in format yyyy-mm-dd
+     * @param timestamp 
+     * @return string
+     */
+    public date(timestamp: number) {
+        return new Date(timestamp * 1000).toLocaleDateString('sv-SE');
+    }
+    
+    /**
+     * Return datetime in format yyyy-mm-dd hh:mm:ss
+     * @param timestamp
+     * @return string
+     */
+    public datetime(timestamp: number) {
+        return new Date(timestamp * 1000).toLocaleString('sv-SE');
+    }
 }

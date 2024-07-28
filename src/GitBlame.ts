@@ -51,9 +51,9 @@ export class GitBlame {
                 child.stderr.on('data', (data: string) => {
                     err += data;
                 });
-                child.on('close', (code: any) => {
+                child.on('close', (code: number) => {
                     if (code !== 0) {
-                        return reject(err);
+                        return reject(new Error(err));
                     }
                     resolve(buf);
                 });
@@ -76,11 +76,11 @@ export class GitBlame {
             const blameData = this.parse(output as string);
             return blameData;
         } catch (e) {
-            const error = (e as string);
-            if (error.includes('git')) {
+            const error = (e as Error);
+            if (error.message.includes('git')) {
                 vscode.window.showInformationMessage('No git repository');
             } else {
-                vscode.window.showErrorMessage(error);
+                vscode.window.showErrorMessage(error.message);
                 throw e;
             }
         }
@@ -101,10 +101,16 @@ export class GitBlame {
                 const hash = hashArr[0];
                 if (cache[hash] === undefined) {
                     const author = chunk[1].slice(7);
+                    const authorMail = chunk[2].slice(13, -1);
+                    const authorTime = +chunk[3].slice(12);
+                    const authorTz = chunk[4].slice(10);
                     const committer = chunk[5].slice(10);
+                    const committerMail = chunk[6].slice(16, -1);
+                    const committerTime = +chunk[7].slice(15);
+                    const committerTz = chunk[8].slice(13);
+                    const summary = chunk[9].slice(8);
                     
                     // if (line !== +hashArr[2] as unknown as number) {
-                    //     console.log('error: line !== hashArr[2]');
                     //     throw new Error('line !== hashArr[2]');
                     // }
                     
@@ -128,19 +134,19 @@ export class GitBlame {
                         hash_2: +hashArr[2],
                         hash_3: hashArr[3] ? +hashArr[3] : undefined,
                         author: author,
-                        authorMail: chunk[2].slice(12).slice(1,-1),
-                        authorTime: +chunk[3].slice(12),
-                        authorTz: chunk[4].slice(10),
+                        authorMail: authorMail,
+                        authorTime: authorTime,
+                        authorTz: authorTz,
                         committer: committer,
-                        committerMail: chunk[6].slice(15).slice(1,-1),
-                        committerTime: +chunk[7].slice(15),
-                        committerTz: chunk[8].slice(13),
-                        summary: chunk[9].slice(8),
+                        committerMail: committerMail,
+                        committerTime: committerTime,
+                        committerTz: committerTz,
+                        summary: summary,
                         previousHash: previousArr !== undefined ? previousArr[1] : undefined,
                         previousFilename: previousArr !== undefined ? previousArr[2] : undefined,
                         text: text,
                         isCommitted: hash !== '0000000000000000000000000000000000000000',
-                        isDiffAuthorCommitter: author != committer,
+                        isDiffAuthorCommitter: authorTime !== committerTime || author !== committer || authorMail !== committerMail,
                     } as BlameData;
                 }
                 
