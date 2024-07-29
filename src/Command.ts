@@ -35,7 +35,7 @@ export class Command {
                 const lineNumber = activeEditor.selection.active.line+1;
                 let hash = '';
                 if (isHash && lineNumber) {
-                    const blameData = await GitBlame.getInstance().getBlameData(fileName);
+                    const blameData = await GitBlame.getInstance().getBlameData(fileName, lineNumber);
                     if (blameData === undefined) {
                         return;
                     }
