@@ -38,7 +38,7 @@ export class DecorationDataBase {
                 before: decorationOptions
             },
             hoverMessage: hoverMessage,
-        };
+        } as vscode.DecorationOptions;
     }
     
     protected _lineDecorationNoRec(line: number) {
@@ -111,7 +111,7 @@ export class DecorationDataBase {
         }
         /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
         const m = new vscode.MarkdownString();
-        m.appendCodeblock(text);
+        m.appendCodeblock(text, 'text');
         return m;
     }
 }
