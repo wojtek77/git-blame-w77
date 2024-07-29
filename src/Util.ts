@@ -50,6 +50,7 @@ export class Util {
     
     /**
      * Return date in format yyyy-mm-dd
+     * https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format
      * @param timestamp 
      * @return string
      */
@@ -59,6 +60,7 @@ export class Util {
     
     /**
      * Return datetime in format yyyy-mm-dd hh:mm:ss
+     * https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format
      * @param timestamp
      * @return string
      */

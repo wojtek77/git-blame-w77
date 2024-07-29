@@ -3,7 +3,7 @@
   "displayName": "Git Blame W77",
   "description": "It is an extension for VS code, which can show git blame in editor and can run git gui blame.",
   "publisher": "W77",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -45,16 +45,30 @@
     },
     "commands": [
       {
+        "command": "gitBlameW77.toggleBlameDecoration",
+        "title": "Toggle Blame Decoration"
+      },
+      {
         "command": "gitBlameW77.runGitGuiBlameForHash",
         "title": "Run Git Gui Blame For Line (hash)"
       },
       {
         "command": "gitBlameW77.runGitGuiBlameForFile",
         "title": "Run Git Gui Blame For File"
-      },
+      }
+    ],
+    "keybindings": [
       {
         "command": "gitBlameW77.toggleBlameDecoration",
-        "title": "Toggle Blame Decoration"
+        "key": "alt+b"
+      },
+      {
+        "command": "gitBlameW77.runGitGuiBlameForHash",
+        "key": "ctrl+alt+b"
+      },
+      {
+        "command": "gitBlameW77.runGitGuiBlameForFile",
+        "key": "ctrl+shift+b"
       }
     ]
   },

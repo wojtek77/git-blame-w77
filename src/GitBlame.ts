@@ -36,7 +36,7 @@ export class GitBlame {
         return this.instance;
     }
 
-    public async getBlameData(filePath: string) {
+    public async getBlameData(filePath: string, line?: number) {
         /* https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct */
         const { spawn } = require('child_process');
         function getChildProcessOutput(program: string, args?: any): Promise<string> {
@@ -68,9 +68,10 @@ export class GitBlame {
         } else {
             cd = 'cd';
         }
+        const lineRange = (line !== undefined) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await getChildProcessOutput(`${cd} ${dirname} && git blame --line-porcelain ${basename}`, {
+            const output = await getChildProcessOutput(`${cd} ${dirname} && git blame --line-porcelain ${lineRange} ${basename}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);

@@ -39,7 +39,7 @@ export class Command {
                     if (blameData === undefined) {
                         return;
                     }
-                    hash = blameData[lineNumber].hash;
+                    hash = blameData[1].hash;
                 }
                 let cd;
                 if (dirname.match(/[\\]/)) { // if is Windows
