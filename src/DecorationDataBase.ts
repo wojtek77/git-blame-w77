@@ -92,14 +92,14 @@ export class DecorationDataBase {
         if (rec.isDiffAuthorCommitter) {
             const datetimeAuthor = util.datetime(rec.authorTime);
             const datetimeCommitter = util.datetime(rec.committerTime);
-            text += `author: ${rec.author} ${rec.authorMail} ${datetimeAuthor}`;
+            text += `author: ${rec.author} <${rec.authorMail}> ${datetimeAuthor}`;
             text += '\n';
-            text += `committer: ${rec.committer} ${rec.committerMail} ${datetimeCommitter}`;
+            text += `committer: ${rec.committer} <${rec.committerMail}> ${datetimeCommitter}`;
             text += '\n';
             text += `${rec.hash}`;
         } else {
             const datetime = util.datetime(rec.authorTime);
-            text += `${rec.author} ${rec.authorMail} ${datetime}`;
+            text += `${rec.author} <${rec.authorMail}> ${datetime}`;
             text += '\n';
             text += `${rec.hash}`;
         }
@@ -111,7 +111,7 @@ export class DecorationDataBase {
         }
         /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
         const m = new vscode.MarkdownString();
-        m.appendCodeblock(text, 'text');
+        m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance
         return m;
     }
 }
