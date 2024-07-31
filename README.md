@@ -5,17 +5,13 @@ It is an extension for VS code, which can show git blame in editor and can run g
 
 ## How to use
 1. Press **Alt + B** on the text editor to show or hide the blame decoration
-2. To see details of commit hover mouse on the decoration
+2. To see details of commit hover mouse on the decoration (the option "editor.hover.enabled" have to be enabled)
 3. Press **Ctrl + Alt + B** on the text editor to run Git Gui Blame For Line
 4. Press **Ctrl + Shift + B** on the text editor to run Git Gui Blame For File
 
 ![Git Blame screeshot 1](images/screenshot1.png)
 
 ![Git Blame screeshot 2](images/screenshot2.png)
-
-![Git Blame screeshot 3](images/screenshot3.png)
-
-![Git Blame screeshot 4](images/screenshot4.png)
 
 ## Commands
 | name | description | keybinding |
