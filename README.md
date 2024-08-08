@@ -23,7 +23,32 @@ gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame For File | ctrl + shift + 
 ## Configuration
 | name | description |
 | - | - |
-gitBlameW77.colors | Specifies colors for the blame decoration. If use empty array then is setup color 'editor.foreground' from theme.
+gitBlameW77.colors | Specifies colors for the blame decoration.
+```json
+    // default colors
+    "gitBlameW77.colors": [
+        "#17a7ea",
+        "#43a965",
+        "#ba9286",
+        "#cfa84e",
+        "#bd6ab9",
+        "#8f74e0",
+        "#3187f0",
+        "#e58965",
+        "#e66e84",
+        "#7a82da"
+    ],
+
+    // gray colors
+    "gitBlameW77.colors": [
+        "#999",
+        "#666"
+    ],
+    
+    // one color "editor.foreground" from theme
+    "gitBlameW77.colors": [
+    ],
+```
 
 ## Other
-Colors made by [Bluloco Dark Theme](https://marketplace.visualstudio.com/items?itemName=uloco.theme-bluloco-dark).
+Colors made by [Bluloco Dark Theme](https://marketplace.visualstudio.com/items?itemName=uloco.theme-bluloco-dark) and [Bluloco Dark Muted W77](https://marketplace.visualstudio.com/items?itemName=W77.bluloco-dark-muted-theme-w77)
