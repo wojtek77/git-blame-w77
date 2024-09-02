@@ -3,6 +3,13 @@
 ## Description
 It is an extension for VS code, which can show git blame in editor and can run git gui blame.
 
+## Features
+- High performance.
+- Support for very large files (e.g. 20,000 lines of code).
+- Show git blame simillar like NetBeans IDE.
+- Use resources only when is switch on.
+- Possibility to run Git Gui Blame (e.g for check changes in line).
+
 ## How to use
 1. Press **Alt + B** on the text editor to show or hide the blame decoration
 2. To see details of commit hover mouse on the decoration (the option "editor.hover.enabled" have to be enabled)
