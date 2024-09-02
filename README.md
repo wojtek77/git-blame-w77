@@ -9,6 +9,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 - Show git blame simillar like NetBeans IDE.
 - Use resources only when is switch on.
 - Possibility to run Git Gui Blame (e.g for check changes in line).
+- No library dependencies.
 
 ## How to use
 1. Press **Alt + B** on the text editor to show or hide the blame decoration
