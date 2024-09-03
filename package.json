@@ -3,7 +3,7 @@
   "displayName": "Git Blame W77",
   "description": "It is an extension for VS code, which can show git blame in editor and can run git gui blame.",
   "publisher": "W77",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -40,6 +40,11 @@
             "#7a82da"
         ],
           "description": "Specifies colors for the blame decoration. If use empty array then is setup color 'editor.foreground' from theme."
+        },
+        "gitBlameW77.gitBlameUrl": {
+          "type": ["string", "null"],
+          "default": null,
+          "description": "Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations."
         }
       }
     },

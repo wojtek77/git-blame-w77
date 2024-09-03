@@ -17,6 +17,7 @@ export class BlameDecoration {
     private blameData: BlameData[] = []; // cache
     private decoration: vscode.DecorationOptions[] = []; // cache 
     private decorationDirty: vscode.DecorationOptions[] = []; // cache 
+    private static gitBlameUrl?: string; // cache (it is set only once when it is opened workspace)
     
     public constructor() {
         this.activeEditor = vscode.window.activeTextEditor;
@@ -58,6 +59,17 @@ export class BlameDecoration {
         }
     }
     
+    private async getGitBlameUrl(document: vscode.TextDocument) {
+        if (BlameDecoration.gitBlameUrl === undefined && vscode.workspace.workspaceFolders) {
+            let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
+            if (gitBlameUrl === null) {
+                gitBlameUrl = await GitBlame.getInstance().getGitBlameUrl(document.fileName);
+            }
+            BlameDecoration.gitBlameUrl = gitBlameUrl;
+        }
+        return BlameDecoration.gitBlameUrl;
+    }
+    
     private async getDecorationClean(document: vscode.TextDocument) {
         this.isLastOpenCleanDoc = true;
         
@@ -72,7 +84,8 @@ export class BlameDecoration {
             return;
         }
         this.blameData = blameData;
-        const decoration = new DecorationDataAllClean().getData(document, this.blameData);
+        const gitBlameUrl = await this.getGitBlameUrl(document);
+        const decoration = new DecorationDataAllClean(gitBlameUrl).getData(document, this.blameData);
         this.decoration = decoration;
         this.lastSavedVersion = document.version;
         return decoration;

@@ -7,8 +7,9 @@ import { DecorationDataBase } from './DecorationDataBase';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataAllClean extends DecorationDataBase {
-    public constructor() {
+    public constructor(gitBlameUrl?: string) {
         super();
+        this.gitBlameUrl = gitBlameUrl;
         this.colors = vscode.workspace.getConfiguration('gitBlameW77').colors;
         this.noRecText = this._emptyLine;
     }

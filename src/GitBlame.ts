@@ -86,6 +86,43 @@ export class GitBlame {
             }
         }
     }
+    
+    public async getGitBlameUrl(filePath: string) {
+        const dirname = Util.getInstance().dirname(filePath);
+        let cd;
+        if (dirname.match(/[\\]/)) { // if is Windows
+            cd = 'cd /d';
+        } else {
+            cd = 'cd';
+        }
+
+        const util = require('util');
+        const exec = util.promisify(require('child_process').exec);
+        try {
+            const { stdout, stderr } = await exec(`${cd} ${dirname} && git config --get remote.origin.url`);
+            const url = this.url(stdout);
+            return url;
+        } catch (e) {
+            const error = (e as Error);
+            if (!error.message.includes('git')) {
+                vscode.window.showErrorMessage(error.message);
+                throw e;
+            }
+        }
+        return '';
+    }
+    
+    private url(stdout: string) {
+        const a = stdout.trim().split(':');
+        switch (true) {
+            case a[0].includes('github.com'):
+                const s = a[1].replace(/\.git$/, '');
+                const url = `https://github.com/${s}/commit/` + '${hash}';
+                return url;
+            default:
+                return '';
+        }
+    }
 
     private parse(blameText: string) {
         let blameData: BlameData[] = [];

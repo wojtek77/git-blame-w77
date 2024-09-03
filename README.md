@@ -32,6 +32,10 @@ gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame For File | ctrl + shift + 
 | name | description |
 | - | - |
 gitBlameW77.colors | Specifies colors for the blame decoration.
+gitBlameW77.gitBlameUrl | Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations.
+
+### Examples for "gitBlameW77.colors"
+
 ```json
     // default colors
     "gitBlameW77.colors": [
@@ -57,6 +61,24 @@ gitBlameW77.colors | Specifies colors for the blame decoration.
     "gitBlameW77.colors": [
     ],
 ```
+### Examples for "gitBlameW77.gitBlameUrl"
+
+```json
+    // when it is NULL (default) it tries to automatically find the URL
+    "gitBlameW77.gitBlameUrl": null,
+    
+    // own URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'
+    // where "${hash}" will be replaced by realy hash
+    "gitBlameW77.gitBlameUrl": "https://github.com/wojtek77/git-blame-w77/commit/${hash}",
+```
+![Git Blame screeshot 3](images/screenshot3.png)
+
+```json
+    // when there is an empty string it disables this functionality
+    // this functionality degrades performance when rendering decorations
+    "gitBlameW77.gitBlameUrl": "",
+```
+![Git Blame screeshot 4](images/screenshot4.png)
 
 ## Other
 Colors made by [Bluloco Dark Theme](https://marketplace.visualstudio.com/items?itemName=uloco.theme-bluloco-dark) and [Bluloco Dark Muted W77](https://marketplace.visualstudio.com/items?itemName=W77.bluloco-dark-muted-theme-w77)

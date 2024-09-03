@@ -7,6 +7,7 @@ import { Util } from './Util';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataBase {
+    protected gitBlameUrl?:string = undefined;
     protected colors = [];
     private hashColors: {[key: string]: string} = {};
     private j = 0; // iterator for colors
@@ -88,30 +89,34 @@ export class DecorationDataBase {
     
     private _lineHoverMessage(rec: BlameData) {
         const util = Util.getInstance();
+        /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
+        const m = new vscode.MarkdownString();
+        m.supportHtml = false;
+        const hash = rec.hash;
+        if (this.gitBlameUrl) {
+            const gitBlameUrl = this.gitBlameUrl.replace('${hash}', hash);
+            m.appendText('Commit: ')
+                .appendMarkdown(`[${hash}](${gitBlameUrl})`);
+        } else {
+            m.appendCodeblock(`Commit: ${hash}`, 'plaintext'); // "plaintext" for better performance
+        }
         let text = '';
         if (rec.isDiffAuthorCommitter) {
             const datetimeAuthor = util.datetime(rec.authorTime);
             const datetimeCommitter = util.datetime(rec.committerTime);
-            text += `author: ${rec.author} <${rec.authorMail}> ${datetimeAuthor}`;
+            text += `Author: ${rec.author} <${rec.authorMail}> ${datetimeAuthor}`;
             text += '\n';
-            text += `committer: ${rec.committer} <${rec.committerMail}> ${datetimeCommitter}`;
-            text += '\n';
-            text += `${rec.hash}`;
+            text += `Committer: ${rec.committer} <${rec.committerMail}> ${datetimeCommitter}`;
         } else {
             const datetime = util.datetime(rec.authorTime);
-            text += `${rec.author} <${rec.authorMail}> ${datetime}`;
-            text += '\n';
-            text += `${rec.hash}`;
+            text += `Author: ${rec.author} <${rec.authorMail}> ${datetime}`;
         }
-        text += '\n';
-        text += `${rec.summary}`;
-        if (rec.previousHash) {
-            text += '\n';
-            text += `previous: ${rec.previousFilename} ${rec.previousHash}`;
-        }
-        /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
-        const m = new vscode.MarkdownString();
         m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance
+        m.appendCodeblock(`${rec.summary}`, 'plaintext'); // "plaintext" for better performance
+        if (rec.previousHash) {
+            m.appendCodeblock(`previous: ${rec.previousFilename} ${rec.previousHash}`, 'bibtex'); // "plaintext" for better performance
+        }
+        
         return m;
     }
 }
