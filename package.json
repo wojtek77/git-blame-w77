@@ -3,9 +3,9 @@
   "displayName": "Git Blame W77",
   "description": "It is an extension for VS code, which can show git blame in editor and can run git gui blame.",
   "publisher": "W77",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "engines": {
-    "vscode": "^1.73.0"
+    "vscode": "^1.75.0"
   },
   "repository": {
     "url": "https://github.com/wojtek77/git-blame-w77"
@@ -15,9 +15,6 @@
   },
   "categories": [
     "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
   ],
   "main": "./out/extension.js",
   "icon": "git.png",
@@ -86,7 +83,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.73.0",
+    "@types/vscode": "^1.75.0",
     "@types/mocha": "^10.0.7",
     "@types/node": "20.x",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
