@@ -113,11 +113,17 @@ export class GitBlame {
     }
     
     private url(stdout: string) {
-        const a = stdout.trim().split(':');
+        const remoteOriginUrl = stdout.trimEnd();
+        let url, s;
         switch (true) {
-            case a[0].includes('github.com'):
-                const s = a[1].replace(/\.git$/, '');
-                const url = `https://github.com/${s}/commit/` + '${hash}';
+            case remoteOriginUrl.includes('git@github.com:'):
+                const a = remoteOriginUrl.split(':');
+                s = a[1].replace(/\.git$/, '');
+                url = `https://github.com/${s}/commit/` + '${hash}';
+                return url;
+            case remoteOriginUrl.includes('https://github.com/'):
+                s = remoteOriginUrl.replace('https://github.com/', '').replace(/\.git$/, '');
+                url = `https://github.com/${s}/commit/` + '${hash}';
                 return url;
             default:
                 return '';
