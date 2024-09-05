@@ -91,6 +91,11 @@ gitBlameW77.dateLocale | Specifies locale for date e.g 'en-US'. More locales her
     // more info https://www.w3schools.com/jsref/jsref_tolocalestring.asp
     "gitBlameW77.dateLocale": "en-US",
 ```
+Locale "en-US"
+![Git Blame screeshot 4](images/screenshot5_en-US.png)
+
+Locale "sv-SE"
+![Git Blame screeshot 4](images/screenshot6_sv-SE.png)
 
 ## Other
 Colors made by [Bluloco Dark Theme](https://marketplace.visualstudio.com/items?itemName=uloco.theme-bluloco-dark) and [Bluloco Dark Muted W77](https://marketplace.visualstudio.com/items?itemName=W77.bluloco-dark-muted-theme-w77)
