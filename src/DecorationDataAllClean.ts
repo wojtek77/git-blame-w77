@@ -11,6 +11,7 @@ export class DecorationDataAllClean extends DecorationDataBase {
         super();
         this.gitBlameUrl = gitBlameUrl;
         this.colors = vscode.workspace.getConfiguration('gitBlameW77').colors;
+        this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
         this.noRecText = this._emptyLine;
     }
     

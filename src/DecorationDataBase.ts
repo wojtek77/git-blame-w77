@@ -9,6 +9,7 @@ import { Util } from './Util';
 export class DecorationDataBase {
     protected gitBlameUrl?:string = undefined;
     protected colors = [];
+    protected dateLocale?:string = undefined;
     private hashColors: {[key: string]: string} = {};
     private j = 0; // iterator for colors
     
@@ -70,7 +71,7 @@ export class DecorationDataBase {
         const noBreakSpace = this._noBreakSpace;
         return util.fillAndTruncate(rec.hash, 7, noBreakSpace)
                 +' '
-                +util.date(rec.authorTime)
+                +util.date(rec.authorTime, this.dateLocale)
                 +' '
                 +util.fillAndTruncate(rec.authorMail, 7, noBreakSpace, '...');
     }
@@ -102,13 +103,13 @@ export class DecorationDataBase {
         }
         let text = '';
         if (rec.isDiffAuthorCommitter) {
-            const datetimeAuthor = util.datetime(rec.authorTime);
-            const datetimeCommitter = util.datetime(rec.committerTime);
+            const datetimeAuthor = util.datetime(rec.authorTime, this.dateLocale);
+            const datetimeCommitter = util.datetime(rec.committerTime, this.dateLocale);
             text += `Author: ${rec.author} <${rec.authorMail}> ${datetimeAuthor}`;
             text += '\n';
             text += `Committer: ${rec.committer} <${rec.committerMail}> ${datetimeCommitter}`;
         } else {
-            const datetime = util.datetime(rec.authorTime);
+            const datetime = util.datetime(rec.authorTime, this.dateLocale);
             text += `Author: ${rec.author} <${rec.authorMail}> ${datetime}`;
         }
         m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance

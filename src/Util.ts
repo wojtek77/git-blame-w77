@@ -52,19 +52,34 @@ export class Util {
      * Return date in format yyyy-mm-dd
      * https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format
      * @param timestamp 
+     * @param locale
      * @return string
      */
-    public date(timestamp: number) {
-        return new Date(timestamp * 1000).toLocaleDateString('sv-SE');
+    public date(timestamp: number, locale: string | undefined) {
+        return new Date(timestamp * 1000).toLocaleDateString(locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour12: false
+        });
     }
-    
+
     /**
      * Return datetime in format yyyy-mm-dd hh:mm:ss
      * https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format
      * @param timestamp
+     * @param locale
      * @return string
      */
-    public datetime(timestamp: number) {
-        return new Date(timestamp * 1000).toLocaleString('sv-SE');
+    public datetime(timestamp: number, locale: string | undefined) {
+        return new Date(timestamp * 1000).toLocaleString(locale, {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
     }
 }

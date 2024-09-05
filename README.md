@@ -80,5 +80,16 @@ gitBlameW77.gitBlameUrl | Specifies git blame URL e.g 'https://github.com/wojtek
 ```
 ![Git Blame screeshot 4](images/screenshot4.png)
 
+### Examples for "gitBlameW77.dateLocale"
+
+```json
+    // when there is an empty string (default) then it take locale from system
+    "gitBlameW77.dateLocale": "",
+    
+    // US English
+    // more info https://www.w3schools.com/jsref/jsref_tolocalestring.asp
+    "gitBlameW77.dateLocale": "en-US",
+```
+
 ## Other
 Colors made by [Bluloco Dark Theme](https://marketplace.visualstudio.com/items?itemName=uloco.theme-bluloco-dark) and [Bluloco Dark Muted W77](https://marketplace.visualstudio.com/items?itemName=W77.bluloco-dark-muted-theme-w77)
