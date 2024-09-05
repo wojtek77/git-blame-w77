@@ -10,6 +10,7 @@ export class DecorationDataBase {
     protected gitBlameUrl?:string = undefined;
     protected colors = [];
     protected dateLocale?:string = undefined;
+    protected decorationShowHash = true;
     private hashColors: {[key: string]: string} = {};
     private j = 0; // iterator for colors
     
@@ -69,11 +70,14 @@ export class DecorationDataBase {
     private _lineText(rec: BlameData) {
         const util = Util.getInstance();
         const noBreakSpace = this._noBreakSpace;
-        return util.fillAndTruncate(rec.hash, 7, noBreakSpace)
-                +' '
-                +util.date(rec.authorTime, this.dateLocale)
+        let text = '';
+        if (this.decorationShowHash) {
+            text += util.fillAndTruncate(rec.hash, 7, noBreakSpace)+' ';
+        }
+        text += util.date(rec.authorTime, this.dateLocale)
                 +' '
                 +util.fillAndTruncate(rec.authorMail, 7, noBreakSpace, '...');
+        return text;
     }
     
     private _color(rec: BlameData) {
