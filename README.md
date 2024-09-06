@@ -32,6 +32,7 @@ gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame For File | ctrl + shift + 
 | name | default | description |
 | - | - | - |
 gitBlameW77.colors | ["#17a7ea", "#43a965", "#ba9286", "#cfa84e", "#bd6ab9", "#8f74e0", "#3187f0", "#e58965", "#e66e84", "#7a82da"] | Specifies colors for the blame decoration.
+gitBlameW77.colorsUsedAsBackground | false | Specifies whether colors are used as background of decoration. Default colors are used as text of decoration.
 gitBlameW77.gitBlameUrl | null | Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations.
 gitBlameW77.dateLocale | "" (empty string) | Specifies locale for date e.g 'en-US'. More locales here https://www.w3schools.com/jsref/jsref_tolocalestring.asp or https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format. When there is an empty string (default) then it take locale from system.
 gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or not in decoration.
@@ -63,6 +64,22 @@ gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or
     "gitBlameW77.colors": [
     ],
 ```
+
+### Examples for "gitBlameW77.colorsUsedAsBackground"
+
+```json
+    // default colors are used as text of decoration
+    "gitBlameW77.colorsUsedAsBackground": false,
+    
+    // colors are used as background of decoration
+    "gitBlameW77.decorationShowHash": true,
+```
+Default colors are used as text of decoration\
+![Git Blame screeshot 8](images/screenshot8.png)
+
+Colors are used as background of decoration\
+![Git Blame screeshot 9](images/screenshot9.png)
+
 ### Examples for "gitBlameW77.gitBlameUrl"
 
 ```json
@@ -72,14 +89,15 @@ gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or
     // own URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'
     // where "${hash}" will be replaced by realy hash
     "gitBlameW77.gitBlameUrl": "https://github.com/wojtek77/git-blame-w77/commit/${hash}",
-```
-![Git Blame screeshot 3](images/screenshot3.png)
-
-```json
+    
     // when there is an empty string it disables this functionality
     // this functionality degrades performance when rendering decorations
     "gitBlameW77.gitBlameUrl": "",
 ```
+When it is switch on\
+![Git Blame screeshot 3](images/screenshot3.png)
+
+When it is switch off\
 ![Git Blame screeshot 4](images/screenshot4.png)
 
 ### Examples for "gitBlameW77.dateLocale"

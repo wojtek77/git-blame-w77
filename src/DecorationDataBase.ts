@@ -9,6 +9,7 @@ import { Util } from './Util';
 export class DecorationDataBase {
     protected gitBlameUrl?:string = undefined;
     protected colors = [];
+    protected colorsUsedAsBackground = false;
     protected dateLocale?:string = undefined;
     protected decorationShowHash = true;
     private hashColors: {[key: string]: string} = {};
@@ -23,10 +24,19 @@ export class DecorationDataBase {
     
     protected _lineDecorationRec(rec: BlameData, line: number) {
         if (this.cache[rec.hash]?.decorationOptions === undefined) {
-            this.cache[rec.hash] = {
-                decorationOptions: {
-                    contentText: this._lineText(rec),
-                    color: this._color(rec),
+            if (this.colorsUsedAsBackground) {
+                this.cache[rec.hash] = {
+                    decorationOptions: {
+                        contentText: this._lineText(rec),
+                        backgroundColor: this._color(rec),
+                    }
+                }
+            } else {
+                this.cache[rec.hash] = {
+                    decorationOptions: {
+                        contentText: this._lineText(rec),
+                        color: this._color(rec),
+                    }
                 }
             }
         }
