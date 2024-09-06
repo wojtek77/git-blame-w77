@@ -29,12 +29,12 @@ gitBlameW77.runGitGuiBlameForHash | Run Git Gui Blame For Line (hash) | ctrl + a
 gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame For File | ctrl + shift + b
 
 ## Configuration
-| name | description |
-| - | - |
-gitBlameW77.colors | Specifies colors for the blame decoration.
-gitBlameW77.gitBlameUrl | Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations.
-gitBlameW77.dateLocale | Specifies locale for date e.g 'en-US'. More locales here https://www.w3schools.com/jsref/jsref_tolocalestring.asp or https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format. When there is an empty string (default) then it take locale from system.
-gitBlameW77.decorationShowHash | Specifies whether to show commit hash or not in decoration.
+| name | default | description |
+| - | - | - |
+gitBlameW77.colors | ["#17a7ea", "#43a965", "#ba9286", "#cfa84e", "#bd6ab9", "#8f74e0", "#3187f0", "#e58965", "#e66e84", "#7a82da"] | Specifies colors for the blame decoration.
+gitBlameW77.gitBlameUrl | null | Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations.
+gitBlameW77.dateLocale | "" (empty string) | Specifies locale for date e.g 'en-US'. More locales here https://www.w3schools.com/jsref/jsref_tolocalestring.asp or https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format. When there is an empty string (default) then it take locale from system.
+gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or not in decoration.
 
 ### Examples for "gitBlameW77.colors"
 
@@ -92,18 +92,22 @@ gitBlameW77.decorationShowHash | Specifies whether to show commit hash or not in
     // more info https://www.w3schools.com/jsref/jsref_tolocalestring.asp
     "gitBlameW77.dateLocale": "en-US",
 ```
-Locale "en-US"
+Locale "en-US"\
 ![Git Blame screeshot 5](images/screenshot5_en-US.png)
 
-Locale "sv-SE"
+Locale "sv-SE"\
 ![Git Blame screeshot 6](images/screenshot6_sv-SE.png)
 
 ### Examples for "gitBlameW77.decorationShowHash"
 
 ```json
+    // default shows commit hash in decoration
+    "gitBlameW77.decorationShowHash": true,
+    
     // does not show commit hash in decoration
     "gitBlameW77.decorationShowHash": false,
 ```
+Does not show commit hash in decoration\
 ![Git Blame screeshot 7](images/screenshot7.png)
 
 ## Other
