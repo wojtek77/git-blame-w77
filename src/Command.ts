@@ -32,7 +32,12 @@ export class Command {
             const dirname = Util.getInstance().dirname(fileName);
             const basename = Util.getInstance().basename(fileName);
             if (dirname && basename) {
-                const lineNumber = activeEditor.selection.active.line+1;
+                let lineNumber = activeEditor.selection.active.line+1;
+                if (lineNumber === activeEditor.document.lineCount) { // workaround if is marked the last line with no git blame
+                    --lineNumber;
+                    // vscode.window.showInformationMessage('The marked line has no blame git');
+                    // return;
+                }
                 let hash = '';
                 if (isHash && lineNumber) {
                     const blameData = await GitBlame.getInstance().getBlameData(fileName, lineNumber);
@@ -47,7 +52,7 @@ export class Command {
                 } else {
                     cd = 'cd';
                 }
-                const cmd = `${cd} ${dirname} && git gui blame --line=${lineNumber} ${hash} ${basename}`;
+                const cmd = `${cd} ${dirname} && git gui blame --line=${lineNumber} ${hash} '${basename}'`;
                 exec(cmd);
             }
         }
