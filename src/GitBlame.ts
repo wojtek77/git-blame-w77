@@ -71,7 +71,7 @@ export class GitBlame {
         const lineRange = (line !== undefined) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await getChildProcessOutput(`${cd} ${dirname} && git blame --line-porcelain ${lineRange} '${basename}'`, {
+            const output = await getChildProcessOutput(`${cd} ${dirname} && git blame --line-porcelain ${lineRange} ${basename}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);
