@@ -61,7 +61,7 @@ export class GitBlame {
         }
         
         const dirname = Util.getInstance().dirname(filePath);
-        const basename = Util.getInstance().basename(filePath);
+        const basename = '"'+Util.getInstance().basename(filePath)+'"'; // workaround if basename has spaces
         let cd;
         if (dirname.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';

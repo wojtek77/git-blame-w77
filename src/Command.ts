@@ -30,9 +30,14 @@ export class Command {
         if (activeEditor) {
             const fileName = activeEditor.document.fileName;
             const dirname = Util.getInstance().dirname(fileName);
-            const basename = Util.getInstance().basename(fileName);
+            const basename = '"'+Util.getInstance().basename(fileName)+'"'; // workaround if basename has spaces
             if (dirname && basename) {
-                const lineNumber = activeEditor.selection.active.line+1;
+                let lineNumber = activeEditor.selection.active.line+1;
+                if (lineNumber === activeEditor.document.lineCount) { // workaround if is marked the last line with no git blame
+                    --lineNumber;
+                    // vscode.window.showInformationMessage('The marked line has no blame git');
+                    // return;
+                }
                 let hash = '';
                 if (isHash && lineNumber) {
                     const blameData = await GitBlame.getInstance().getBlameData(fileName, lineNumber);
