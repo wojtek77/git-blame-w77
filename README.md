@@ -14,7 +14,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 - Tested on Linux and Windows.
 
 ## How to use
-1. Press **Alt + B** on the text editor to show or hide the blame decoration
+1. Press **Alt + B** or click in context menu **Git Blame Toggle** on the text editor to show or hide the blame decoration
 2. To see details of commit hover mouse on the decoration (the option "editor.hover.enabled" have to be enabled)
 3. Alternatively press **Ctrl + Shift + B** to run Git Gui Blame
 
@@ -25,7 +25,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 ## Commands
 | name | description | keybinding |
 | - | - | - |
-gitBlameW77.toggleBlameDecoration | Toggle Blame Decoration | Alt + B
+gitBlameW77.toggleBlameDecoration | Git Blame Toggle | Alt + B
 gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame | Ctrl + Shift + B
 gitBlameW77.runGitGuiBlameForHash | Run Git Gui Blame For Line | Ctrl + Alt + B
 
@@ -37,6 +37,7 @@ gitBlameW77.colorsUsedAsBackground | false | Specifies whether colors are used a
 gitBlameW77.gitBlameUrl | null | Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations.
 gitBlameW77.dateLocale | "" (empty string) | Specifies locale for date e.g 'en-US'. More locales here https://www.w3schools.com/jsref/jsref_tolocalestring.asp or https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format. When there is an empty string (default) then it take locale from system.
 gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or not in decoration.
+gitBlameW77.showInContextMenu | true | Specifies whether to show in the context menu 'Git Blame Toggle'.
 
 ### Examples for "gitBlameW77.colors"
 
