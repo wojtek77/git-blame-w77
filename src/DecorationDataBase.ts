@@ -107,6 +107,7 @@ export class DecorationDataBase {
         /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
         const m = new vscode.MarkdownString();
         m.supportHtml = false;
+        m.isTrusted = true;
         const hash = rec.hash;
         if (this.gitBlameUrl) {
             const gitBlameUrl = this.gitBlameUrl.replace('${hash}', hash);
@@ -131,6 +132,7 @@ export class DecorationDataBase {
         if (rec.previousHash) {
             m.appendCodeblock(`previous: ${rec.previousFilename} ${rec.previousHash}`, 'bibtex'); // "plaintext" for better performance
         }
+        m.appendMarkdown(`[Git Gui Blame](command:gitBlameW77.runGitGuiBlameForFile)`)
         
         return m;
     }
