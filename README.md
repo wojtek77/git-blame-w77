@@ -27,7 +27,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 | - | - | - |
 gitBlameW77.toggleBlameDecoration | Toggle Blame Decoration | Alt + B
 gitBlameW77.runGitGuiBlameForFile | Run Git Gui Blame | Ctrl + Shift + B
-gitBlameW77.runGitGuiBlameForHash | Run Git Gui Blame For Line (by hash) | Ctrl + Alt + B
+gitBlameW77.runGitGuiBlameForHash | Run Git Gui Blame For Line | Ctrl + Alt + B
 
 ## Configuration
 | name | default | description |

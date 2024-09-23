@@ -54,15 +54,9 @@ export class Command {
                 }
                 const cmd = `${cd} ${dirname} && git gui blame --line=${lineNumber} ${hash} ${basename}`;
                 exec(cmd, (error, stdout, stderr) => {
-                    // if (error) {
-                    //     if (error.message.includes('gui')) {
-                    //         vscode.window.showInformationMessage('Is not installed Git Gui');
-                    //     } else {
-                    //         vscode.window.showErrorMessage(error.message);
-                    //         throw new Error(error.message);
-                    //     }
-                    //     return;
-                    // }
+                    if (error?.code === 1) { // no installed Git Gui
+                        vscode.window.showInformationMessage('Is not installed Git Gui');
+                    }
                 });
             }
         }
