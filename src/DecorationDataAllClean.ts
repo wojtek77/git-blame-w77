@@ -14,6 +14,7 @@ export class DecorationDataAllClean extends DecorationDataBase {
         this.colorsUsedAsBackground = vscode.workspace.getConfiguration('gitBlameW77').colorsUsedAsBackground;
         this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
         this.decorationShowHash = vscode.workspace.getConfiguration('gitBlameW77').decorationShowHash;
+        this.hoverShowLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
         this.noRecText = this._emptyLine;
     }
     

@@ -12,6 +12,7 @@ export class DecorationDataBase {
     protected colorsUsedAsBackground = false;
     protected dateLocale?:string = undefined;
     protected decorationShowHash = true;
+    protected hoverShowLinkToGitGuiBlame = true;
     private hashColors: {[key: string]: string} = {};
     private j = 0; // iterator for colors
     
@@ -132,7 +133,9 @@ export class DecorationDataBase {
         if (rec.previousHash) {
             m.appendCodeblock(`previous: ${rec.previousFilename} ${rec.previousHash}`, 'bibtex'); // "plaintext" for better performance
         }
-        m.appendMarkdown(`[Git Gui Blame](command:gitBlameW77.runGitGuiBlameForFile)`)
+        if (this.hoverShowLinkToGitGuiBlame) {
+            m.appendMarkdown(`[Git Gui Blame](command:gitBlameW77.runGitGuiBlameForFile)`)
+        }
         
         return m;
     }
