@@ -37,6 +37,7 @@ export class BlameDecoration {
         } else {
             this.activeEditor?.setDecorations(this.blameDecorationType, []);
         }
+        return this.isOpen;
     }
     
     public async openBlameDecoration() {
