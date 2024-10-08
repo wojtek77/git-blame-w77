@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
         return false;
     }
     
-    let decorations: {[key: string]: BlameDecoration} = {};
+    let decorations: {[key: string]: BlameDecoration} = {}; // cache of decorations
     
     let unsubscribeOnDidChangeActiveTextEditor: vscode.Disposable | null;
     let unsubscribeOnDidCloseTextDocument: vscode.Disposable | null;
@@ -47,6 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
             eventsSwitchOn();
         } else if (!isUsingDecoration()) {
             eventsSwitchOff();
+            decorations = {}; // clear cache
         }
     }));
     
