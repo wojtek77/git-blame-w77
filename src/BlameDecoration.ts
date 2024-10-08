@@ -53,7 +53,9 @@ export class BlameDecoration {
     
     public async updateBlameDecoration(contentChanges: readonly vscode.TextDocumentContentChangeEvent[]) {
         if (this.activeEditor) {
-            const decoration = this.getDecorationDirty(this.activeEditor.document, contentChanges);
+            const decoration = this.activeEditor.document.isDirty
+                ? this.getDecorationDirty(this.activeEditor.document, contentChanges)
+                : await this.getDecorationClean(this.activeEditor.document);
             if (decoration) {
                 this.activeEditor.setDecorations(this.blameDecorationType, decoration);
             }
