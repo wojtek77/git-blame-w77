@@ -25,23 +25,31 @@ export class DecorationDataBase {
     
     protected _lineDecorationRec(rec: BlameData, line: number) {
         if (this.cache[rec.hash]?.decorationOptions === undefined) {
-            if (this.colorsUsedAsBackground) {
-                this.cache[rec.hash] = {
-                    decorationOptions: {
-                        contentText: this._lineText(rec),
-                        backgroundColor: this._color(rec),
-                    }
-                }
-            } else {
-                this.cache[rec.hash] = {
-                    decorationOptions: {
-                        contentText: this._lineText(rec),
-                        color: this._color(rec),
-                    }
+            this.cache[rec.hash] = {
+                decorationOptions: {
+                    contentText: this._lineText(rec),
                 }
             }
         }
-        const decorationOptions = this.cache[rec.hash].decorationOptions;
+        const color = this._color(rec);
+        let decorationOptions = this.cache[rec.hash].decorationOptions;
+        if (this.colorsUsedAsBackground) {
+            if (decorationOptions.backgroundColor === undefined) {
+                decorationOptions.backgroundColor = color;
+            } else if (decorationOptions.backgroundColor !== color) { // fix same color for next hash
+                // https://stackoverflow.com/questions/28150967/typescript-cloning-object
+                decorationOptions = structuredClone(decorationOptions);
+                decorationOptions.backgroundColor = color;
+            }
+        } else {
+            if (decorationOptions.color === undefined) {
+                decorationOptions.color = color;
+            } else if (decorationOptions.color !== color) { // fix same color for next hash
+                // https://stackoverflow.com/questions/28150967/typescript-cloning-object
+                decorationOptions = structuredClone(decorationOptions);
+                decorationOptions.color = color;
+            }
+        }
         if (this.cache[rec.hash].hoverMessage === undefined) {
             this.cache[rec.hash].hoverMessage = this._lineHoverMessage(rec);
         }
@@ -94,6 +102,7 @@ export class DecorationDataBase {
     private _color(rec: BlameData) {
         if (this.colors.length) {
             if (this.hashColors[rec.hash] === undefined) {
+                this.hashColors = {}; // clear all cache (cache work only for lines with the same hash)
                 const k = this.j % this.colors.length;
                 this.hashColors[rec.hash] = this.colors[k]
                 this.j += 1;
