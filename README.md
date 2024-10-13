@@ -6,7 +6,6 @@ It is an extension for VS code, which can show git blame in editor and can run g
 ## Features
 - High performance.
 - Support for very large files (e.g. 20,000 lines of code).
-- Support for filenames with spaces.
 - Show git blame simillar like NetBeans IDE.
 - Use resources only when is switch on.
 - Possibility to run Git Gui Blame (e.g for check changes in line).
