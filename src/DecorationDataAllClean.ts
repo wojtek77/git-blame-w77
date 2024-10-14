@@ -10,7 +10,10 @@ export class DecorationDataAllClean extends DecorationDataBase {
     public constructor(gitBlameUrl?: string) {
         super();
         this.gitBlameUrl = gitBlameUrl;
-        this.colors = vscode.workspace.getConfiguration('gitBlameW77').colors;
+        /* colors */
+        const confColors = vscode.workspace.getConfiguration('gitBlameW77').colors;
+        const themeKind = [vscode.ColorThemeKind.Dark, vscode.ColorThemeKind.HighContrast].includes(vscode.window.activeColorTheme.kind) ? 'dark' : 'light';
+        this.colors = (confColors[themeKind] !== undefined) ? confColors[themeKind] : confColors;
         this.colorsUsedAsBackground = vscode.workspace.getConfiguration('gitBlameW77').colorsUsedAsBackground;
         this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
         this.decorationShowHash = vscode.workspace.getConfiguration('gitBlameW77').decorationShowHash;

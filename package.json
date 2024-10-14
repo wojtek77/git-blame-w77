@@ -3,7 +3,7 @@
   "displayName": "Git Blame W77",
   "description": "It is an extension for VS code, which can show git blame in editor and can run git gui blame.",
   "publisher": "W77",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -24,19 +24,48 @@
       "title": "gitBlameW77",
       "properties": {
         "gitBlameW77.colors": {
-          "type": "array",
-          "default": [
-            "#17a7ea",
-            "#43a965",
-            "#ba9286",
-            "#cfa84e",
-            "#bd6ab9",
-            "#8f74e0",
-            "#3187f0",
-            "#e58965",
-            "#e66e84",
-            "#7a82da"
-        ],
+          "type": [
+            "object",
+            "array"
+          ],
+          "properties": {
+            "dark": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[a-fA-F0-9]{3,8}$"
+              },
+              "default": [
+                "#999",
+                "#666"
+              ]
+            },
+            "light": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^#[a-fA-F0-9]{3,8}$"
+              },
+              "default": [
+                "#444",
+                "#111"
+              ]
+            }
+          },
+          "default": {
+            "dark": [
+              "#999",
+              "#666"
+            ],
+            "light": [
+              "#444",
+              "#111"
+            ]
+          },
+          "items": {
+            "type": "string",
+            "pattern": "^#[a-fA-F0-9]{3,8}$"
+          },
           "description": "Specifies colors for the blame decoration. If use empty array then is setup color 'editor.foreground' from theme."
         },
         "gitBlameW77.colorsUsedAsBackground": {

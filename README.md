@@ -8,6 +8,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 - Support for very large files (e.g. 20,000 lines of code).
 - Show git blame simillar like NetBeans IDE.
 - Use resources only when is switch on.
+- Specify colors for Dark and Light theme
 - Possibility to run Git Gui Blame (e.g for check changes in line).
 - No library dependencies.
 - Tested on Linux and Windows.
@@ -31,7 +32,7 @@ gitBlameW77.runGitGuiBlameForHash | Run Git Gui Blame For Line | Ctrl + Alt + B
 ## Configuration
 | name | default | description |
 | - | - | - |
-gitBlameW77.colors | ["#17a7ea", "#43a965", "#ba9286", "#cfa84e", "#bd6ab9", "#8f74e0", "#3187f0", "#e58965", "#e66e84", "#7a82da"] | Specifies colors for the blame decoration.
+gitBlameW77.colors | <code>{<br> "dark": ["#999", "#666"],<br> "light": ["#444", "#111"]<br>}</code> | Specifies colors for the blame decoration.
 gitBlameW77.colorsUsedAsBackground | false | Specifies whether colors are used as background of decoration. Default colors are used as text of decoration.
 gitBlameW77.gitBlameUrl | null | Specifies git blame URL e.g 'https://github.com/wojtek77/git-blame-w77/commit/${hash}'. When it is NULL (default) it tries to automatically find the URL. When there is an empty string it disables this functionality. This functionality degrades performance when rendering decorations.
 gitBlameW77.dateLocale | "" (empty string) | Specifies locale for date e.g 'en-US'. More locales here https://www.w3schools.com/jsref/jsref_tolocalestring.asp or https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format. When there is an empty string (default) then it take locale from system.
@@ -42,7 +43,21 @@ gitBlameW77.hoverShowLinkToGitGuiBlame | true | Specifies whether to show link t
 ### Examples for "gitBlameW77.colors"
 
 ```json
-    // default colors
+    // default colors since v2.2.0
+    // specify colors for light or dark theme
+    "gitBlameW77.colors": {
+        "dark": [
+            "#999",
+            "#666"
+        ],
+        "light": [
+            "#444",
+            "#111"
+        ]
+    },
+
+    // default colors before v.2.2.0
+    // can be still used since v.2.2.0 without keys "dark" and "light"
     "gitBlameW77.colors": [
         "#17a7ea",
         "#43a965",
@@ -56,12 +71,6 @@ gitBlameW77.hoverShowLinkToGitGuiBlame | true | Specifies whether to show link t
         "#7a82da"
     ],
 
-    // gray colors
-    "gitBlameW77.colors": [
-        "#999",
-        "#666"
-    ],
-    
     // one color "editor.foreground" from theme
     "gitBlameW77.colors": [
     ],
