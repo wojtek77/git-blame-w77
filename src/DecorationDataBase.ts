@@ -33,22 +33,13 @@ export class DecorationDataBase {
         }
         const color = this._color(rec);
         let decorationOptions = this.cache[rec.hash].decorationOptions;
-        if (this.colorsUsedAsBackground) {
-            if (decorationOptions.backgroundColor === undefined) {
-                decorationOptions.backgroundColor = color;
-            } else if (decorationOptions.backgroundColor !== color) { // fix same color for next hash
-                // https://stackoverflow.com/questions/28150967/typescript-cloning-object
-                decorationOptions = structuredClone(decorationOptions);
-                decorationOptions.backgroundColor = color;
-            }
-        } else {
-            if (decorationOptions.color === undefined) {
-                decorationOptions.color = color;
-            } else if (decorationOptions.color !== color) { // fix same color for next hash
-                // https://stackoverflow.com/questions/28150967/typescript-cloning-object
-                decorationOptions = structuredClone(decorationOptions);
-                decorationOptions.color = color;
-            }
+        const prop = this.colorsUsedAsBackground ? 'backgroundColor' : 'color';
+        if (decorationOptions[prop] === undefined) {
+            decorationOptions[prop] = color;
+        } else if (decorationOptions[prop] !== color) { // fix same color for next hash
+            // https://stackoverflow.com/questions/28150967/typescript-cloning-object
+            decorationOptions = structuredClone(decorationOptions);
+            decorationOptions[prop] = color;
         }
         if (this.cache[rec.hash].hoverMessage === undefined) {
             this.cache[rec.hash].hoverMessage = this._lineHoverMessage(rec);
