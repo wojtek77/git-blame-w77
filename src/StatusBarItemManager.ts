@@ -15,7 +15,7 @@ export class StatusBarItemManager extends DecorationDataBase {
     
     public show(statusBarItem: vscode.StatusBarItem, activeEditor: vscode.TextEditor, blameData: BlameData[]) {
         const lineNumber = activeEditor.selection.active.line+1;
-        if (blameData[lineNumber] !== undefined) {
+        if (blameData[lineNumber] !== undefined && blameData[lineNumber].isCommitted) {
             const rec = blameData[lineNumber];
             statusBarItem.text = `Blame line ${lineNumber} ${rec.author}`;
             statusBarItem.tooltip = this._lineMessage(rec, true);
