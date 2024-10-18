@@ -12,6 +12,7 @@ export class DecorationDataBase {
     protected colorsUsedAsBackground = false;
     protected dateLocale?:string = undefined;
     protected decorationShowHash = true;
+    protected hoverEnabled = false;
     protected hoverShowLinkToGitGuiBlame = true;
     private hashColors: {[key: string]: string} = {};
     private j = 0; // iterator for colors
@@ -41,8 +42,8 @@ export class DecorationDataBase {
             decorationOptions = structuredClone(decorationOptions);
             decorationOptions[prop] = color;
         }
-        if (this.cache[rec.hash].hoverMessage === undefined) {
-            this.cache[rec.hash].hoverMessage = this._lineHoverMessage(rec);
+        if (this.hoverEnabled && this.cache[rec.hash].hoverMessage === undefined) {
+            this.cache[rec.hash].hoverMessage = this._lineMessage(rec, this.hoverShowLinkToGitGuiBlame);
         }
         const hoverMessage = this.cache[rec.hash].hoverMessage;
         return {
@@ -69,6 +70,43 @@ export class DecorationDataBase {
                 before: decorationOptions
             },
         };
+    }
+    
+    protected _lineMessage(rec: BlameData, showLinkToGitGuiBlame: boolean) {
+        const util = Util.getInstance();
+        /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
+        const m = new vscode.MarkdownString();
+        m.supportHtml = false;
+        m.isTrusted = true;
+        const hash = rec.hash;
+        if (this.gitBlameUrl) {
+            const gitBlameUrl = this.gitBlameUrl.replace('${hash}', hash);
+            m.appendText('Commit: ')
+                .appendMarkdown(`[${hash}](${gitBlameUrl})`);
+        } else {
+            m.appendCodeblock(`Commit: ${hash}`, 'plaintext'); // "plaintext" for better performance
+        }
+        let text = '';
+        if (rec.isDiffAuthorCommitter) {
+            const datetimeAuthor = util.datetime(rec.authorTime, this.dateLocale);
+            const datetimeCommitter = util.datetime(rec.committerTime, this.dateLocale);
+            text += `Author: ${rec.author} <${rec.authorMail}> ${datetimeAuthor}`;
+            text += '\n';
+            text += `Committer: ${rec.committer} <${rec.committerMail}> ${datetimeCommitter}`;
+        } else {
+            const datetime = util.datetime(rec.authorTime, this.dateLocale);
+            text += `Author: ${rec.author} <${rec.authorMail}> ${datetime}`;
+        }
+        m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance
+        m.appendCodeblock(`${rec.summary}`, 'plaintext'); // "plaintext" for better performance
+        if (rec.previousHash) {
+            m.appendCodeblock(`previous: ${rec.previousFilename} ${rec.previousHash}`, 'bibtex'); // "plaintext" for better performance
+        }
+        if (showLinkToGitGuiBlame) {
+            m.appendMarkdown(`[Git Gui Blame](command:gitBlameW77.runGitGuiBlameForFile)`)
+        }
+        
+        return m;
     }
     
     private _range(line: number) {
@@ -101,42 +139,5 @@ export class DecorationDataBase {
             const color = this.hashColors[rec.hash];
             return color;
         }
-    }
-    
-    private _lineHoverMessage(rec: BlameData) {
-        const util = Util.getInstance();
-        /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
-        const m = new vscode.MarkdownString();
-        m.supportHtml = false;
-        m.isTrusted = true;
-        const hash = rec.hash;
-        if (this.gitBlameUrl) {
-            const gitBlameUrl = this.gitBlameUrl.replace('${hash}', hash);
-            m.appendText('Commit: ')
-                .appendMarkdown(`[${hash}](${gitBlameUrl})`);
-        } else {
-            m.appendCodeblock(`Commit: ${hash}`, 'plaintext'); // "plaintext" for better performance
-        }
-        let text = '';
-        if (rec.isDiffAuthorCommitter) {
-            const datetimeAuthor = util.datetime(rec.authorTime, this.dateLocale);
-            const datetimeCommitter = util.datetime(rec.committerTime, this.dateLocale);
-            text += `Author: ${rec.author} <${rec.authorMail}> ${datetimeAuthor}`;
-            text += '\n';
-            text += `Committer: ${rec.committer} <${rec.committerMail}> ${datetimeCommitter}`;
-        } else {
-            const datetime = util.datetime(rec.authorTime, this.dateLocale);
-            text += `Author: ${rec.author} <${rec.authorMail}> ${datetime}`;
-        }
-        m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance
-        m.appendCodeblock(`${rec.summary}`, 'plaintext'); // "plaintext" for better performance
-        if (rec.previousHash) {
-            m.appendCodeblock(`previous: ${rec.previousFilename} ${rec.previousHash}`, 'bibtex'); // "plaintext" for better performance
-        }
-        if (this.hoverShowLinkToGitGuiBlame) {
-            m.appendMarkdown(`[Git Gui Blame](command:gitBlameW77.runGitGuiBlameForFile)`)
-        }
-        
-        return m;
     }
 }

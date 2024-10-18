@@ -2,12 +2,16 @@ import * as vscode from 'vscode';
 import { GitBlame, BlameData } from './GitBlame';
 import { DecorationDataAllClean } from './DecorationDataAllClean';
 import { DecorationDataAllDirty } from './DecorationDataAllDirty';
+import { StatusBarItemManager } from './StatusBarItemManager';
 
 /**
  * Represents blame decoration use in vscode
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class BlameDecoration {
+    public static statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000); // only one for all tabs
+    private static gitBlameUrl?: string; // cache (it is set only once when it is opened workspace)
+    
     public activeEditor?: vscode.TextEditor;
     public isOpen: boolean = false;
     public lastSavedVersion?: number; // for clean document
@@ -17,7 +21,6 @@ export class BlameDecoration {
     private blameData: BlameData[] = []; // cache
     private decoration: vscode.DecorationOptions[] = []; // cache 
     private decorationDirty: vscode.DecorationOptions[] = []; // cache 
-    private static gitBlameUrl?: string; // cache (it is set only once when it is opened workspace)
     
     public constructor() {
         this.activeEditor = vscode.window.activeTextEditor;
@@ -28,6 +31,7 @@ export class BlameDecoration {
                 margin: '0 10px 0 0',
             }
         });
+        // BlameDecoration.statusBarItem.command = 'gitBlameW77.runGitGuiBlameForFile';
     }
     
     public toggleBlameDecoration() {
@@ -36,6 +40,7 @@ export class BlameDecoration {
             this.openBlameDecoration();
         } else {
             this.activeEditor?.setDecorations(this.blameDecorationType, []);
+            BlameDecoration.statusBarItem.hide();
         }
         return this.isOpen;
     }
@@ -47,6 +52,7 @@ export class BlameDecoration {
                                 : await this.getDecorationClean(this.activeEditor.document);
             if (decoration) {
                 this.activeEditor.setDecorations(this.blameDecorationType, decoration);
+                this.updateStatusBarItem(this.activeEditor);
             }
         }
     }
@@ -58,6 +64,18 @@ export class BlameDecoration {
                 : await this.getDecorationClean(this.activeEditor.document);
             if (decoration) {
                 this.activeEditor.setDecorations(this.blameDecorationType, decoration);
+                this.updateStatusBarItem(this.activeEditor);
+            }
+        }
+    }
+    
+    public async updateStatusBarItem(activeEditor: vscode.TextEditor) {
+        if (this.activeEditor) {
+            if (this.activeEditor.document.isDirty) {
+                BlameDecoration.statusBarItem.hide();
+            } else {
+                const gitBlameUrl = await this.getGitBlameUrl(activeEditor.document);
+                new StatusBarItemManager(gitBlameUrl).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
             }
         }
     }

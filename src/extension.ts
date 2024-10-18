@@ -33,6 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
     let unsubscribeOnDidCloseTextDocument: vscode.Disposable | null;
     let unsubscribeOnDidSaveTextDocument: vscode.Disposable | null;
     let unsubscribeOnDidChangeTextDocument: vscode.Disposable | null;
+    let unsubscribeOnDidChangeTextEditorSelection: vscode.Disposable | null;
     
     /* register commands */
     context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.runGitGuiBlameForHash', () => {
@@ -57,6 +58,7 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         unsubscribeOnDidChangeActiveTextEditor = vscode.window.onDidChangeActiveTextEditor(editor => {
+            BlameDecoration.statusBarItem.hide();
             if (editor) {
                 const fileName = editor.document.fileName;
                 if (decorations[fileName] !== undefined && decorations[fileName].isOpen) {
@@ -93,6 +95,15 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }
         }, null, context.subscriptions);
+        unsubscribeOnDidChangeTextEditorSelection = vscode.window.onDidChangeTextEditorSelection(event => {
+            const fileName = event.textEditor.document.fileName;
+            if (decorations[fileName].isOpen) {
+                const activeEditor = decorations[fileName].activeEditor;
+                if (activeEditor && event.textEditor === activeEditor) {
+                    decorations[fileName].updateStatusBarItem(event.textEditor);
+                }
+            }
+        }, null, context.subscriptions);
     }
     function eventsSwitchOff() {
         if (!unsubscribeOnDidChangeActiveTextEditor) {
@@ -106,5 +117,7 @@ export function activate(context: vscode.ExtensionContext) {
         unsubscribeOnDidSaveTextDocument = null;
         unsubscribeOnDidChangeTextDocument?.dispose();
         unsubscribeOnDidChangeTextDocument = null;
+        unsubscribeOnDidChangeTextEditorSelection?.dispose();
+        unsubscribeOnDidChangeTextEditorSelection = null;
     }
 }
