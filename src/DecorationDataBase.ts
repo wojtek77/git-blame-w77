@@ -32,8 +32,8 @@ export class DecorationDataBase {
                 }
             }
         }
-        const color = this._color(rec);
         let decorationOptions = this.cache[rec.hash].decorationOptions;
+        const color = this._color(rec);
         const prop = this.colorsUsedAsBackground ? 'backgroundColor' : 'color';
         if (decorationOptions[prop] === undefined) {
             decorationOptions[prop] = color;
