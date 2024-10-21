@@ -60,10 +60,10 @@ export class GitBlame {
             });
         }
         
-        const dirname = Util.getInstance().dirname(filePath);
-        const basename = '"'+Util.getInstance().basename(filePath)+'"'; // workaround if basename has spaces
+        const workspaceFolder = Util.getInstance().workspaceFolder();
+        const relativeFile = '"'+Util.getInstance().relativeFile(workspaceFolder, filePath)+'"'; // workaround if has spaces
         let cd;
-        if (dirname.match(/[\\]/)) { // if is Windows
+        if (workspaceFolder.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';
         } else {
             cd = 'cd';
@@ -71,7 +71,7 @@ export class GitBlame {
         const lineRange = (line !== undefined) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await getChildProcessOutput(`${cd} ${dirname} && git blame --line-porcelain ${lineRange} ${basename}`, {
+            const output = await getChildProcessOutput(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${relativeFile}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);
@@ -88,9 +88,9 @@ export class GitBlame {
     }
     
     public async getGitBlameUrl(filePath: string) {
-        const dirname = Util.getInstance().dirname(filePath);
+        const workspaceFolder = Util.getInstance().workspaceFolder();
         let cd;
-        if (dirname.match(/[\\]/)) { // if is Windows
+        if (workspaceFolder.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';
         } else {
             cd = 'cd';
@@ -99,7 +99,7 @@ export class GitBlame {
         const util = require('util');
         const exec = util.promisify(require('child_process').exec);
         try {
-            const { stdout, stderr } = await exec(`${cd} ${dirname} && git config --get remote.origin.url`);
+            const { stdout, stderr } = await exec(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
             const url = this.url(stdout);
             return url;
         } catch (e) {

@@ -1,3 +1,5 @@
+import * as vscode from 'vscode';
+
 /**
  * Any simple util functions
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
@@ -12,15 +14,20 @@ export class Util {
         return this.instance;
     }
     
-    
-    public dirname(filePath: string): string {
-        const basename = this.basename(filePath);
-        return filePath.replace(basename, '');
+    public workspaceFolder(): string {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const res = editor.document.uri;
+            const folder = vscode.workspace.getWorkspaceFolder(res);
+            if (folder) {
+                return folder.uri.fsPath;
+            }
+        }
+        return '';
     }
     
-    public basename(filePath: string): string {
-        const match = filePath.match(/[^/\\]+$/);
-        return match ? match[0] : '';
+    public relativeFile(workspaceFolder: string, filePath: string): string {
+        return filePath.replace(workspaceFolder, '').substring(1);
     }
     
     /**

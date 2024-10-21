@@ -29,9 +29,9 @@ export class Command {
         const activeEditor = vscode.window.activeTextEditor
         if (activeEditor) {
             const fileName = activeEditor.document.fileName;
-            const dirname = Util.getInstance().dirname(fileName);
-            const basename = '"'+Util.getInstance().basename(fileName)+'"'; // workaround if basename has spaces
-            if (dirname && basename) {
+            const workspaceFolder = Util.getInstance().workspaceFolder();
+            const relativeFile = '"'+Util.getInstance().relativeFile(workspaceFolder, fileName)+'"'; // workaround if has spaces
+            if (workspaceFolder && relativeFile) {
                 let lineNumber = activeEditor.selection.active.line+1;
                 if (lineNumber === activeEditor.document.lineCount) { // workaround if is marked the last line with no git blame
                     --lineNumber;
@@ -47,12 +47,12 @@ export class Command {
                     hash = blameData[1].hash;
                 }
                 let cd;
-                if (dirname.match(/[\\]/)) { // if is Windows
+                if (workspaceFolder.match(/[\\]/)) { // if is Windows
                     cd = 'cd /d';
                 } else {
                     cd = 'cd';
                 }
-                const cmd = `${cd} ${dirname} && git gui blame --line=${lineNumber} ${hash} ${basename}`;
+                const cmd = `${cd} ${workspaceFolder} && git gui blame --line=${lineNumber} ${hash} ${relativeFile}`;
                 exec(cmd, (error, stdout, stderr) => {
                     if (error?.code === 1) { // no installed Git Gui
                         vscode.window.showInformationMessage('Is not installed Git Gui');
