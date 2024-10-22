@@ -36,7 +36,7 @@ export class GitBlame {
         return this.instance;
     }
 
-    public async getBlameData(filePath: string, line?: number) {
+    public async getBlameData(workspaceFolder: string, relativeFile: string, hash?: string, line?: number) {
         /* https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct */
         const { spawn } = require('child_process');
         function getChildProcessOutput(program: string, args?: any): Promise<string> {
@@ -60,8 +60,7 @@ export class GitBlame {
             });
         }
         
-        const workspaceFolder = Util.getInstance().workspaceFolder();
-        const relativeFile = '"'+Util.getInstance().relativeFile(workspaceFolder, filePath)+'"'; // workaround if has spaces
+        relativeFile = '"'+relativeFile+'"'; // workaround if has spaces
         let cd;
         if (workspaceFolder.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';
@@ -71,7 +70,7 @@ export class GitBlame {
         const lineRange = (line !== undefined) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await getChildProcessOutput(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${relativeFile}`, {
+            const output = await getChildProcessOutput(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${hash || ''} -- ${relativeFile}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);
@@ -87,8 +86,10 @@ export class GitBlame {
         }
     }
     
-    public async getGitBlameUrl(filePath: string) {
-        const workspaceFolder = Util.getInstance().workspaceFolder();
+    public async getGitBlameUrl(workspaceFolder?: string) {
+        if (workspaceFolder === undefined) {
+            workspaceFolder = Util.getInstance().workspaceFolder();
+        }
         let cd;
         if (workspaceFolder.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';
@@ -136,65 +137,60 @@ export class GitBlame {
         blameArr.pop(); // remove last element because it is empty line
         let line = 1;
         let chunk = [];
-        let cache: {[key: string]: BlameData} = {};
         for (let i = 0; i < blameArr.length; ++i) {
             const l = blameArr[i];
             chunk.push(l);
             if (l.charAt(0) === '\t') { // end for chunk
                 const hashArr = chunk[0].split(' ');
                 const hash = hashArr[0];
-                if (cache[hash] === undefined) {
-                    const author = chunk[1].slice(7);
-                    const authorMail = chunk[2].slice(13, -1);
-                    const authorTime = +chunk[3].slice(12);
-                    const authorTz = chunk[4].slice(10);
-                    const committer = chunk[5].slice(10);
-                    const committerMail = chunk[6].slice(16, -1);
-                    const committerTime = +chunk[7].slice(15);
-                    const committerTz = chunk[8].slice(13);
-                    const summary = chunk[9].slice(8);
-                    
-                    // if (line !== +hashArr[2] as unknown as number) {
-                    //     throw new Error('line !== hashArr[2]');
-                    // }
-                    
-                    let previousArr;
-                    let text;
-                    switch (chunk.length) {
-                        case 13:
-                            previousArr = chunk[10].split(' ');
-                            text = chunk[12].slice(1);
-                            break;
-                        case 12:
-                            text = chunk[11].slice(1);
-                            break;
-                        default:
-                            throw new Error(`incorrect chunk.length: ${chunk.length}`);
-                    }
-                    cache[hash] = {
-                        line: line,
-                        hash: hash,
-                        hash_1: +hashArr[1],
-                        hash_2: +hashArr[2],
-                        hash_3: hashArr[3] ? +hashArr[3] : undefined,
-                        author: author,
-                        authorMail: authorMail,
-                        authorTime: authorTime,
-                        authorTz: authorTz,
-                        committer: committer,
-                        committerMail: committerMail,
-                        committerTime: committerTime,
-                        committerTz: committerTz,
-                        summary: summary,
-                        previousHash: previousArr !== undefined ? previousArr[1] : undefined,
-                        previousFilename: previousArr !== undefined ? previousArr[2] : undefined,
-                        text: text,
-                        isCommitted: hash !== '0000000000000000000000000000000000000000',
-                        isDiffAuthorCommitter: authorTime !== committerTime || author !== committer || authorMail !== committerMail,
-                    } as BlameData;
-                }
+                const author = chunk[1].slice(7);
+                const authorMail = chunk[2].slice(13, -1);
+                const authorTime = +chunk[3].slice(12);
+                const authorTz = chunk[4].slice(10);
+                const committer = chunk[5].slice(10);
+                const committerMail = chunk[6].slice(16, -1);
+                const committerTime = +chunk[7].slice(15);
+                const committerTz = chunk[8].slice(13);
+                const summary = chunk[9].slice(8);
                 
-                blameData[line] = cache[hash]
+                // if (line !== +hashArr[2] as unknown as number) {
+                //     throw new Error('line !== hashArr[2]');
+                // }
+                
+                let previousArr;
+                let text;
+                switch (chunk.length) {
+                    case 13:
+                        previousArr = chunk[10].split(' ');
+                        text = chunk[12].slice(1);
+                        break;
+                    case 12:
+                        text = chunk[11].slice(1);
+                        break;
+                    default:
+                        throw new Error(`incorrect chunk.length: ${chunk.length}`);
+                }
+                blameData[line] = {
+                    line: line,
+                    hash: hash,
+                    hash_1: +hashArr[1],
+                    hash_2: +hashArr[2],
+                    hash_3: hashArr[3] ? +hashArr[3] : undefined,
+                    author: author,
+                    authorMail: authorMail,
+                    authorTime: authorTime,
+                    authorTz: authorTz,
+                    committer: committer,
+                    committerMail: committerMail,
+                    committerTime: committerTime,
+                    committerTz: committerTz,
+                    summary: summary,
+                    previousHash: previousArr !== undefined ? previousArr[1] : undefined,
+                    previousFilename: previousArr !== undefined ? previousArr[2] : undefined,
+                    text: text,
+                    isCommitted: hash !== '0000000000000000000000000000000000000000',
+                    isDiffAuthorCommitter: authorTime !== committerTime || author !== committer || authorMail !== committerMail,
+                } as BlameData;
                 
                 line += 1;
                 chunk = [];

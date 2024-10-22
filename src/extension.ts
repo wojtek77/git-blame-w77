@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { Command } from './Command';
 import { BlameDecoration } from './BlameDecoration';
+import { BlameEditorProvider } from './BlameEditorProvider';
+import { Util } from './Util';
 
 // this method is called when vs code is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -9,11 +11,11 @@ export function activate(context: vscode.ExtensionContext) {
         This extension was made based on the above
     */
     
-    function createDecoration() {
+    function createDecoration(args: {workspaceFolder?: string, relativeFile?: string, hash?: string}) {
         const activeEditor = vscode.window.activeTextEditor
         const fileName = activeEditor ? activeEditor.document.fileName : '';
         if (decorations[fileName] === undefined) {
-            decorations[fileName] = new BlameDecoration();
+            decorations[fileName] = new BlameDecoration(args);
         }
         decorations[fileName].activeEditor = activeEditor;
         return decorations[fileName];
@@ -43,13 +45,17 @@ export function activate(context: vscode.ExtensionContext) {
         Command.getInstance().runGitGuiBlameForFile();
     }));
     context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.toggleBlameDecoration', () => {
-        const isOpen = createDecoration().toggleBlameDecoration();
+        const isOpen = createDecoration({}).toggleBlameDecoration();
         if (isOpen) {
             eventsSwitchOn();
         } else if (!isUsingDecoration()) {
             eventsSwitchOff();
             decorations = {}; // clear cache
         }
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.showBlamePrevious', async ({workspaceFolder, relativeFile, hash, line}) => {
+        await BlameEditorProvider.getInstance().createDoc(workspaceFolder, relativeFile, hash, line);
+        createDecoration({workspaceFolder: workspaceFolder, relativeFile: relativeFile, hash: hash}).openBlameDecoration();
     }));
     
     /* register events */
@@ -120,4 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
         unsubscribeOnDidChangeTextEditorSelection?.dispose();
         unsubscribeOnDidChangeTextEditorSelection = null;
     }
+    
+    /* register others */
+    context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(BlameEditorProvider.scheme, BlameEditorProvider.getInstance()));
 }

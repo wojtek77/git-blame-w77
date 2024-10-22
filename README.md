@@ -7,6 +7,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 - High performance.
 - Support for very large files (e.g. 20,000 lines of code).
 - Show git blame simillar like NetBeans IDE.
+- Show previously blame in the editor, it is easy to go backwards.
 - Use resources only when is switch on.
 - Specify colors for Dark and Light theme
 - Possibility to run Git Gui Blame (e.g for check changes in line).

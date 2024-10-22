@@ -14,6 +14,17 @@ export class Util {
         return this.instance;
     }
     
+    
+    public dirname(filePath: string): string {
+        const basename = this.basename(filePath);
+        return filePath.replace(basename, '');
+    }
+    
+    public basename(filePath: string): string {
+        const match = filePath.match(/[^/\\]+$/);
+        return match ? match[0] : '';
+    }
+    
     public workspaceFolder(): string {
         const editor = vscode.window.activeTextEditor;
         if (editor) {

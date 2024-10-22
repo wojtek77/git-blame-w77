@@ -28,23 +28,26 @@ export class Command {
     private async runGitGuiBlame(isHash: boolean) {
         const activeEditor = vscode.window.activeTextEditor
         if (activeEditor) {
+            const util = Util.getInstance();
             const fileName = activeEditor.document.fileName;
-            const workspaceFolder = Util.getInstance().workspaceFolder();
-            const relativeFile = '"'+Util.getInstance().relativeFile(workspaceFolder, fileName)+'"'; // workaround if has spaces
+            const workspaceFolder = util.workspaceFolder();
+            const relativeFile = '"'+util.relativeFile(workspaceFolder, fileName)+'"'; // workaround if has spaces
             if (workspaceFolder && relativeFile) {
                 let lineNumber = activeEditor.selection.active.line+1;
-                if (lineNumber === activeEditor.document.lineCount) { // workaround if is marked the last line with no git blame
-                    --lineNumber;
-                    // vscode.window.showInformationMessage('The marked line has no blame git');
-                    // return;
-                }
                 let hash = '';
-                if (isHash && lineNumber) {
-                    const blameData = await GitBlame.getInstance().getBlameData(fileName, lineNumber);
+                if (isHash) {
+                    const blameData = await GitBlame.getInstance().getBlameData(workspaceFolder, relativeFile, undefined, lineNumber);
                     if (blameData === undefined) {
                         return;
                     }
                     hash = blameData[1].hash;
+                    lineNumber = blameData[1].hash_1;
+                } else {
+                    if (lineNumber === activeEditor.document.lineCount) { // workaround if is marked the last line with no git blame
+                        --lineNumber;
+                        // vscode.window.showInformationMessage('The marked line has no blame git');
+                        // return;
+                    }
                 }
                 let cd;
                 if (workspaceFolder.match(/[\\]/)) { // if is Windows

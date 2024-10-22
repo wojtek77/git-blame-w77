@@ -7,6 +7,7 @@ import { Util } from './Util';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataBase {
+    protected workspaceFolder?:string = undefined;
     protected gitBlameUrl?:string = undefined;
     protected colors = [];
     protected colorsUsedAsBackground = false;
@@ -42,10 +43,10 @@ export class DecorationDataBase {
             decorationOptions = structuredClone(decorationOptions);
             decorationOptions[prop] = color;
         }
-        if (this.hoverEnabled && this.cache[rec.hash].hoverMessage === undefined) {
-            this.cache[rec.hash].hoverMessage = this._lineMessage(rec, this.hoverShowLinkToGitGuiBlame);
+        let hoverMessage;
+        if (this.hoverEnabled) {
+            hoverMessage = this._lineMessage(rec, true, this.hoverShowLinkToGitGuiBlame);
         }
-        const hoverMessage = this.cache[rec.hash].hoverMessage;
         return {
             range: this._range(line),
             renderOptions: {
@@ -72,7 +73,7 @@ export class DecorationDataBase {
         };
     }
     
-    protected _lineMessage(rec: BlameData, showLinkToGitGuiBlame: boolean) {
+    protected _lineMessage(rec: BlameData, showLinkToPrevious: boolean, showLinkToGitGuiBlame: boolean) {
         const util = Util.getInstance();
         /* https://stackoverflow.com/questions/75542879/how-to-add-styled-text-in-vscode-markdownstring */
         const m = new vscode.MarkdownString();
@@ -100,7 +101,18 @@ export class DecorationDataBase {
         m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance
         m.appendCodeblock(`${rec.summary}`, 'plaintext'); // "plaintext" for better performance
         if (rec.previousHash) {
-            m.appendCodeblock(`previous: ${rec.previousFilename} ${rec.previousHash}`, 'bibtex'); // "plaintext" for better performance
+            if (showLinkToPrevious) {
+                const args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.previousFilename, hash: rec.previousHash, line: rec.hash_1};
+                const jsonArgs = JSON.stringify(args);
+                const uri = vscode.Uri.parse(`command:gitBlameW77.showBlamePrevious?${encodeURI(jsonArgs)}`);
+                m.appendText('previous: ')
+                    .appendMarkdown(`[${rec.previousHash}](${uri})`)
+                    .appendText(` ${rec.previousFilename}\n`);
+            } else {
+                m.appendCodeblock(`\nprevious: ${rec.previousHash} ${rec.previousFilename}`, 'bibtex'); // "bibtex" has grey color
+            }
+        } else {
+            m.appendCodeblock('\nprevious: ---', 'bibtex'); // "bibtex" has grey color
         }
         if (showLinkToGitGuiBlame) {
             m.appendMarkdown(`[Git Gui Blame](command:gitBlameW77.runGitGuiBlameForFile)`)

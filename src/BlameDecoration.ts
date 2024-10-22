@@ -3,6 +3,7 @@ import { GitBlame, BlameData } from './GitBlame';
 import { DecorationDataAllClean } from './DecorationDataAllClean';
 import { DecorationDataAllDirty } from './DecorationDataAllDirty';
 import { StatusBarItemManager } from './StatusBarItemManager';
+import { Util } from './Util';
 
 /**
  * Represents blame decoration use in vscode
@@ -10,27 +11,44 @@ import { StatusBarItemManager } from './StatusBarItemManager';
  */
 export class BlameDecoration {
     public static statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 1000); // only one for all tabs
+    public static blameDecorationType = vscode.window.createTextEditorDecorationType({
+        before: {
+            color: new vscode.ThemeColor('editor.foreground'),
+            height: 'editor.lineHeight',
+            margin: '0 10px 0 0',
+        }
+    });
     private static gitBlameUrl?: string; // cache (it is set only once when it is opened workspace)
+    
+    public static async getGitBlameUrl() {
+        if (BlameDecoration.gitBlameUrl === undefined && vscode.workspace.workspaceFolders) {
+            let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
+            if (gitBlameUrl === null) {
+                gitBlameUrl = await GitBlame.getInstance().getGitBlameUrl();
+            }
+            BlameDecoration.gitBlameUrl = gitBlameUrl;
+        }
+        return BlameDecoration.gitBlameUrl;
+    }
     
     public activeEditor?: vscode.TextEditor;
     public isOpen: boolean = false;
     public lastSavedVersion?: number; // for clean document
+    private readonly workspaceFolder;
+    private readonly relativeFile;
+    private readonly hash;
     private lastLineCount?: number; // for dirty document
     private isLastOpenCleanDoc?: boolean; // if last time was opened clean document
-    private blameDecorationType: vscode.TextEditorDecorationType;
     private blameData: BlameData[] = []; // cache
     private decoration: vscode.DecorationOptions[] = []; // cache 
     private decorationDirty: vscode.DecorationOptions[] = []; // cache 
     
-    public constructor() {
+    public constructor({workspaceFolder, relativeFile, hash}: {workspaceFolder?: string, relativeFile?: string, hash?: string}) {
         this.activeEditor = vscode.window.activeTextEditor;
-        this.blameDecorationType = vscode.window.createTextEditorDecorationType({
-            before: {
-                color: new vscode.ThemeColor('editor.foreground'),
-                height: 'editor.lineHeight',
-                margin: '0 10px 0 0',
-            }
-        });
+        const util = Util.getInstance();
+        this.workspaceFolder = workspaceFolder || util.workspaceFolder();
+        this.relativeFile = relativeFile || util.relativeFile(this.workspaceFolder, this.activeEditor!.document.fileName);
+        this.hash = hash;
         // BlameDecoration.statusBarItem.command = 'gitBlameW77.runGitGuiBlameForFile';
     }
     
@@ -39,7 +57,7 @@ export class BlameDecoration {
         if (this.isOpen) {
             this.openBlameDecoration();
         } else {
-            this.activeEditor?.setDecorations(this.blameDecorationType, []);
+            this.activeEditor?.setDecorations(BlameDecoration.blameDecorationType, []);
             BlameDecoration.statusBarItem.hide();
         }
         return this.isOpen;
@@ -51,8 +69,9 @@ export class BlameDecoration {
                                 ? (this.getDecorationDirty(this.activeEditor.document) || this.decorationDirty)
                                 : await this.getDecorationClean(this.activeEditor.document);
             if (decoration) {
-                this.activeEditor.setDecorations(this.blameDecorationType, decoration);
+                this.activeEditor.setDecorations(BlameDecoration.blameDecorationType, decoration);
                 this.updateStatusBarItem(this.activeEditor);
+                this.isOpen = true;
             }
         }
     }
@@ -63,7 +82,7 @@ export class BlameDecoration {
                 ? this.getDecorationDirty(this.activeEditor.document, contentChanges)
                 : await this.getDecorationClean(this.activeEditor.document);
             if (decoration) {
-                this.activeEditor.setDecorations(this.blameDecorationType, decoration);
+                this.activeEditor.setDecorations(BlameDecoration.blameDecorationType, decoration);
                 this.updateStatusBarItem(this.activeEditor);
             }
         }
@@ -74,21 +93,10 @@ export class BlameDecoration {
             if (this.activeEditor.document.isDirty) {
                 BlameDecoration.statusBarItem.hide();
             } else {
-                const gitBlameUrl = await this.getGitBlameUrl(activeEditor.document);
-                new StatusBarItemManager(gitBlameUrl).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
+                const gitBlameUrl = await BlameDecoration.getGitBlameUrl();
+                new StatusBarItemManager(this.workspaceFolder, gitBlameUrl).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
             }
         }
-    }
-    
-    private async getGitBlameUrl(document: vscode.TextDocument) {
-        if (BlameDecoration.gitBlameUrl === undefined && vscode.workspace.workspaceFolders) {
-            let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
-            if (gitBlameUrl === null) {
-                gitBlameUrl = await GitBlame.getInstance().getGitBlameUrl(document.fileName);
-            }
-            BlameDecoration.gitBlameUrl = gitBlameUrl;
-        }
-        return BlameDecoration.gitBlameUrl;
     }
     
     private async getDecorationClean(document: vscode.TextDocument) {
@@ -100,13 +108,13 @@ export class BlameDecoration {
         }
         
         /* for clean document */
-        const blameData = await GitBlame.getInstance().getBlameData(document.fileName);
+        const blameData = await GitBlame.getInstance().getBlameData(this.workspaceFolder, this.relativeFile, this.hash);
         if (blameData === undefined) {
             return;
         }
         this.blameData = blameData;
-        const gitBlameUrl = await this.getGitBlameUrl(document);
-        const decoration = new DecorationDataAllClean(gitBlameUrl).getData(document, this.blameData);
+        const gitBlameUrl = await BlameDecoration.getGitBlameUrl();
+        const decoration = new DecorationDataAllClean(this.workspaceFolder, gitBlameUrl).getData(document, this.blameData);
         this.decoration = decoration;
         this.lastSavedVersion = document.version;
         return decoration;
