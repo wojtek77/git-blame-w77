@@ -4,6 +4,7 @@ import { DecorationDataAllClean } from './DecorationDataAllClean';
 import { DecorationDataAllDirty } from './DecorationDataAllDirty';
 import { StatusBarItemManager } from './StatusBarItemManager';
 import { Util } from './Util';
+import { BlameEditorProvider } from './BlameEditorProvider';
 
 /**
  * Represents blame decoration use in vscode
@@ -37,6 +38,7 @@ export class BlameDecoration {
     private readonly workspaceFolder;
     private readonly relativeFile;
     private readonly hash;
+    private readonly isDocumentTmp;
     private lastLineCount?: number; // for dirty document
     private isLastOpenCleanDoc?: boolean; // if last time was opened clean document
     private blameData: BlameData[] = []; // cache
@@ -49,6 +51,7 @@ export class BlameDecoration {
         this.workspaceFolder = workspaceFolder || util.workspaceFolder();
         this.relativeFile = relativeFile || util.relativeFile(this.workspaceFolder, this.activeEditor!.document.fileName);
         this.hash = hash;
+        this.isDocumentTmp = this.activeEditor?.document.uri.scheme === BlameEditorProvider.scheme;
         // BlameDecoration.statusBarItem.command = 'gitBlameW77.runGitGuiBlameForFile';
     }
     
@@ -94,7 +97,7 @@ export class BlameDecoration {
                 BlameDecoration.statusBarItem.hide();
             } else {
                 const gitBlameUrl = await BlameDecoration.getGitBlameUrl();
-                new StatusBarItemManager(this.workspaceFolder, gitBlameUrl).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
+                new StatusBarItemManager(this.isDocumentTmp, this.workspaceFolder, gitBlameUrl).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
             }
         }
     }
@@ -114,7 +117,7 @@ export class BlameDecoration {
         }
         this.blameData = blameData;
         const gitBlameUrl = await BlameDecoration.getGitBlameUrl();
-        const decoration = new DecorationDataAllClean(this.workspaceFolder, gitBlameUrl).getData(document, this.blameData);
+        const decoration = new DecorationDataAllClean(this.isDocumentTmp, this.workspaceFolder, gitBlameUrl).getData(document, this.blameData);
         this.decoration = decoration;
         this.lastSavedVersion = document.version;
         return decoration;

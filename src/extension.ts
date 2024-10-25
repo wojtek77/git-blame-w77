@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { Command } from './Command';
 import { BlameDecoration } from './BlameDecoration';
 import { BlameEditorProvider } from './BlameEditorProvider';
-import { Util } from './Util';
 
 // this method is called when vs code is activated
 export function activate(context: vscode.ExtensionContext) {

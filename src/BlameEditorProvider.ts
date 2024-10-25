@@ -16,7 +16,7 @@ export class BlameEditorProvider implements vscode.TextDocumentContentProvider {
         return this.instance;
     }
     
-    public static readonly scheme = 'gitBlameW77.showBlamePrevious';
+    public static readonly scheme = 'gitBlameW77.BlameEditor';
     
     private workspaceFolder = '';
     private relativeFile = '';
