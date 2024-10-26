@@ -53,7 +53,11 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }));
     context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.showBlamePrevious', async ({workspaceFolder, relativeFile, hash, line}) => {
-        const r = await DocumentTmpProvider.getInstance().createDoc(workspaceFolder, relativeFile, hash, line);
+        await DocumentTmpProvider.getInstance().createDocBlamePrevious(workspaceFolder, relativeFile, hash, line);
+        createDecoration({workspaceFolder: workspaceFolder, relativeFile: relativeFile, hash: hash}).openBlameDecoration();
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.showBlamePreviousIgnoreRev', async ({workspaceFolder, relativeFile, hash, line}) => {
+        const r = await DocumentTmpProvider.getInstance().createDocBlamePreviousIgnoreRev(workspaceFolder, relativeFile, hash, line);
         if (r) {
             createDecoration({workspaceFolder: workspaceFolder, relativeFile: r.relativeFilePrevious, hash: r.hashPrevious}).openBlameDecoration();
         }

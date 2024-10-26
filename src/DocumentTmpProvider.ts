@@ -21,7 +21,28 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
     
     private fnGetContent: any;
     
-    public async createDoc(workspaceFolder: string, relativeFile: string, hash: string, line: number) {
+    public async createDocBlamePrevious(workspaceFolder: string, relativeFile: string, hash: string, line: number) {
+        this.fnGetContent = async () => {
+            const content = await GitShow.getInstance().getFileContent(workspaceFolder, relativeFile, hash);
+            return content;
+        };
+        
+        /* https://code.visualstudio.com/api/extension-guides/virtual-documents */
+        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + relativeFile + ' @ ' + hash.substring(0,7));
+        const doc = await vscode.workspace.openTextDocument(uri); // calls back into the provider
+        if (line >= doc.lineCount) {
+            line = (doc.lineCount > 1) ? doc.lineCount-1 : 1;
+        }
+        const showDocOptions = {
+            preserveFocus: false,
+            preview: false,
+            // viewColumn: 1,
+            selection: new vscode.Range(line-1, 0, line-1, 0),
+        };
+        await vscode.window.showTextDocument(doc, showDocOptions);
+    }
+    
+    public async createDocBlamePreviousIgnoreRev(workspaceFolder: string, relativeFile: string, hash: string, line: number) {
         const extraCmd = `--ignore-rev ${hash}`;
         const blameData = await GitBlame.getInstance().getBlameData(workspaceFolder, relativeFile, hash, line, extraCmd);
         if (blameData === undefined) {
