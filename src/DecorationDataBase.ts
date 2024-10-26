@@ -101,8 +101,18 @@ export class DecorationDataBase {
         m.appendCodeblock(text, 'plaintext'); // "plaintext" for better performance
         m.appendCodeblock(`${rec.summary}`, 'plaintext'); // "plaintext" for better performance
         if (rec.previousHash) {
+            // if (showLinkToPrevious) {
+            //     const args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.previousFilename, hash: rec.previousHash, line: rec.hash_1};
+            //     const jsonArgs = JSON.stringify(args);
+            //     const uri = vscode.Uri.parse(`command:gitBlameW77.showBlamePrevious?${encodeURI(jsonArgs)}`);
+            //     m.appendText('previous: ')
+            //         .appendMarkdown(`[${rec.previousHash}](${uri})`)
+            //         .appendText(` ${rec.previousFilename}\n`);
+            // } else {
+            //     m.appendCodeblock(`\nprevious: ${rec.previousHash} ${rec.previousFilename}`, 'bibtex'); // "bibtex" has grey color
+            // }
             if (showLinkToPrevious) {
-                const args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.previousFilename, hash: rec.previousHash, line: rec.hash_1};
+                const args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.filename, hash: rec.hash, line: rec.hash_1};
                 const jsonArgs = JSON.stringify(args);
                 const uri = vscode.Uri.parse(`command:gitBlameW77.showBlamePrevious?${encodeURI(jsonArgs)}`);
                 m.appendText('previous: ')

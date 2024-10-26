@@ -4,7 +4,7 @@ import { DecorationDataAllClean } from './DecorationDataAllClean';
 import { DecorationDataAllDirty } from './DecorationDataAllDirty';
 import { StatusBarItemManager } from './StatusBarItemManager';
 import { Util } from './Util';
-import { BlameEditorProvider } from './BlameEditorProvider';
+import { DocumentTmpProvider } from './DocumentTmpProvider';
 
 /**
  * Represents blame decoration use in vscode
@@ -51,7 +51,7 @@ export class BlameDecoration {
         this.workspaceFolder = workspaceFolder || util.workspaceFolder();
         this.relativeFile = relativeFile || util.relativeFile(this.workspaceFolder, this.activeEditor!.document.fileName);
         this.hash = hash;
-        this.isDocumentTmp = this.activeEditor?.document.uri.scheme === BlameEditorProvider.scheme;
+        this.isDocumentTmp = this.activeEditor?.document.uri.scheme === DocumentTmpProvider.scheme;
         // BlameDecoration.statusBarItem.command = 'gitBlameW77.runGitGuiBlameForFile';
     }
     

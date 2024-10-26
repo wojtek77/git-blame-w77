@@ -18,6 +18,7 @@ export type BlameData = {
     summary: string;
     previousHash?: string;
     previousFilename?: string;
+    filename: string;
     text: string;
     isCommitted: boolean;
     isDiffAuthorCommitter: boolean;
@@ -36,7 +37,7 @@ export class GitBlame {
         return this.instance;
     }
 
-    public async getBlameData(workspaceFolder: string, relativeFile: string, hash?: string, line?: number) {
+    public async getBlameData(workspaceFolder: string, relativeFile: string, hash = '', line = 0, extraCmd = '') {
         /* https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct */
         const { spawn } = require('child_process');
         function getChildProcessOutput(program: string, args?: any): Promise<string> {
@@ -67,10 +68,10 @@ export class GitBlame {
         } else {
             cd = 'cd';
         }
-        const lineRange = (line !== undefined) ? `-L ${line},${line}` : '';
+        const lineRange = (line !== 0) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await getChildProcessOutput(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${hash || ''} -- ${relativeFile}`, {
+            const output = await getChildProcessOutput(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${relativeFile}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);
@@ -158,13 +159,16 @@ export class GitBlame {
                 // }
                 
                 let previousArr;
+                let filename;
                 let text;
                 switch (chunk.length) {
                     case 13:
                         previousArr = chunk[10].split(' ');
+                        filename = chunk[11].slice(9);
                         text = chunk[12].slice(1);
                         break;
-                    case 12:
+                        case 12:
+                        filename = chunk[10].slice(9);
                         text = chunk[11].slice(1);
                         break;
                     default:
@@ -187,6 +191,7 @@ export class GitBlame {
                     summary: summary,
                     previousHash: previousArr !== undefined ? previousArr[1] : undefined,
                     previousFilename: previousArr !== undefined ? previousArr[2] : undefined,
+                    filename: filename,
                     text: text,
                     isCommitted: hash !== '0000000000000000000000000000000000000000',
                     isDiffAuthorCommitter: authorTime !== committerTime || author !== committer || authorMail !== committerMail,

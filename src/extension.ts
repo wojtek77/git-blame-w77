@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Command } from './Command';
 import { BlameDecoration } from './BlameDecoration';
-import { BlameEditorProvider } from './BlameEditorProvider';
+import { DocumentTmpProvider } from './DocumentTmpProvider';
 
 // this method is called when vs code is activated
 export function activate(context: vscode.ExtensionContext) {
@@ -53,8 +53,10 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }));
     context.subscriptions.push(vscode.commands.registerCommand('gitBlameW77.showBlamePrevious', async ({workspaceFolder, relativeFile, hash, line}) => {
-        await BlameEditorProvider.getInstance().createDoc(workspaceFolder, relativeFile, hash, line);
-        createDecoration({workspaceFolder: workspaceFolder, relativeFile: relativeFile, hash: hash}).openBlameDecoration();
+        const r = await DocumentTmpProvider.getInstance().createDoc(workspaceFolder, relativeFile, hash, line);
+        if (r) {
+            createDecoration({workspaceFolder: workspaceFolder, relativeFile: r.relativeFilePrevious, hash: r.hashPrevious}).openBlameDecoration();
+        }
     }));
     
     /* register events */
@@ -127,5 +129,5 @@ export function activate(context: vscode.ExtensionContext) {
     }
     
     /* register others */
-    context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(BlameEditorProvider.scheme, BlameEditorProvider.getInstance()));
+    context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(DocumentTmpProvider.scheme, DocumentTmpProvider.getInstance()));
 }
