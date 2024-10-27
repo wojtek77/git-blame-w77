@@ -21,14 +21,23 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
     
     private fnGetContent: any;
     
-    public async createDocBlamePrevious(workspaceFolder: string, relativeFile: string, hash: string, line: number) {
+    public async createDocBlamePrevious(workspaceFolder: string, relativeFile: string, hash: string, previousHash: string, line: number) {
         this.fnGetContent = async () => {
-            const content = await GitShow.getInstance().getFileContent(workspaceFolder, relativeFile, hash);
+            const content = await GitShow.getInstance().getFileContent(workspaceFolder, relativeFile, previousHash);
             return content;
         };
         
+        // search correct line in document
+        const extraCmd = `-C -C --ignore-rev ${hash}`;
+        try {
+            const blameData = await GitBlame.getInstance().getBlameData(workspaceFolder, relativeFile, hash+'^!', line, extraCmd, false);
+            if (blameData !== undefined) {
+                line = blameData[1].hash_1;
+            }
+        } catch (e) {}
+        
         /* https://code.visualstudio.com/api/extension-guides/virtual-documents */
-        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + relativeFile + ' @ ' + hash.substring(0,7));
+        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + relativeFile + ' @ ' + previousHash.substring(0,7));
         const doc = await vscode.workspace.openTextDocument(uri); // calls back into the provider
         if (line >= doc.lineCount) {
             line = (doc.lineCount > 1) ? doc.lineCount-1 : 1;

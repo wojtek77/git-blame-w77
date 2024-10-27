@@ -110,7 +110,7 @@ export class DecorationDataBase {
                 m.appendMarkdown(`[Previous by Ignore Rev](${uri})`)
                     .appendText(`\n`);
                 // showBlamePrevious
-                args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.previousFilename, hash: rec.previousHash, line: rec.hash_1};
+                args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.previousFilename, hash: rec.hash, previousHash: rec.previousHash, line: rec.hash_1};
                 jsonArgs = JSON.stringify(args);
                 uri = vscode.Uri.parse(`command:gitBlameW77.showBlamePrevious?${encodeURI(jsonArgs)}`);
                 m.appendText('Previous: ')

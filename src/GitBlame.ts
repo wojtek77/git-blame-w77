@@ -37,7 +37,7 @@ export class GitBlame {
         return this.instance;
     }
 
-    public async getBlameData(workspaceFolder: string, relativeFile: string, hash = '', line = 0, extraCmd = '') {
+    public async getBlameData(workspaceFolder: string, relativeFile: string, hash = '', line = 0, extraCmd = '', showErr = true) {
         /* https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct */
         const { spawn } = require('child_process');
         function getChildProcessOutput(program: string, args?: any): Promise<string> {
@@ -81,7 +81,9 @@ export class GitBlame {
             if (error.message.includes('git')) {
                 vscode.window.showInformationMessage('No git repository');
             } else {
-                vscode.window.showErrorMessage(error.message);
+                if (showErr) {
+                    vscode.window.showErrorMessage(error.message);
+                }
                 throw e;
             }
         }
