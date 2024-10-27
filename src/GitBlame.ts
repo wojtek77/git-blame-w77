@@ -62,6 +62,9 @@ export class GitBlame {
         }
         
         relativeFile = '"'+relativeFile+'"'; // workaround if has spaces
+        if (hash) {
+            hash = '"'+hash+'"'; // workaround if has special chars
+        }
         let cd;
         if (workspaceFolder.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';
