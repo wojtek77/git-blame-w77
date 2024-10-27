@@ -28,7 +28,7 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
         };
         
         // search correct line in document
-        const extraCmd = `-C -C --ignore-rev ${hash}`;
+        const extraCmd = `--ignore-rev ${hash}`;
         try {
             const blameData = await GitBlame.getInstance().getBlameData(workspaceFolder, relativeFile, hash+'^!', line, extraCmd, false);
             if (blameData !== undefined) {

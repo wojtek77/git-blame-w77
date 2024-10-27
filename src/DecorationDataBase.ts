@@ -103,12 +103,6 @@ export class DecorationDataBase {
         if (rec.previousHash) {
             if (showLinkToPrevious) {
                 let args, jsonArgs, uri;
-                // showBlamePreviousIgnoreRev
-                args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.filename, hash: rec.hash, line: rec.hash_1};
-                jsonArgs = JSON.stringify(args);
-                uri = vscode.Uri.parse(`command:gitBlameW77.showBlamePreviousIgnoreRev?${encodeURI(jsonArgs)}`);
-                m.appendMarkdown(`[Previous by Ignore Rev](${uri})`)
-                    .appendText(`\n`);
                 // showBlamePrevious
                 args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.previousFilename, hash: rec.hash, previousHash: rec.previousHash, line: rec.hash_1};
                 jsonArgs = JSON.stringify(args);
@@ -116,6 +110,12 @@ export class DecorationDataBase {
                 m.appendText('Previous: ')
                     .appendMarkdown(`[${rec.previousHash}](${uri})`)
                     .appendText(` ${rec.previousFilename}\n`);
+                // showBlamePreviousIgnoreRev
+                args = {workspaceFolder: this.workspaceFolder, relativeFile: rec.filename, hash: rec.hash, line: rec.hash_1};
+                jsonArgs = JSON.stringify(args);
+                uri = vscode.Uri.parse(`command:gitBlameW77.showBlamePreviousIgnoreRev?${encodeURI(jsonArgs)}`);
+                m.appendMarkdown(`[Previous by Ignore Rev](${uri})`)
+                    .appendText(`\n`);
             } else {
                 m.appendCodeblock(`\nprevious: ${rec.previousHash} ${rec.previousFilename}`, 'bibtex'); // "bibtex" has grey color
             }
