@@ -19,12 +19,12 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
     
     public static readonly scheme = 'gitBlameW77.documentTmp';
     
-    private fnGetContent: any;
+    private fnGetContent = async () => {return ''};
     
     public async createDocBlamePrevious(workspaceFolder: string, relativeFile: string, hash: string, previousHash: string, line: number) {
         this.fnGetContent = async () => {
             const content = await GitShow.getInstance().getFileContent(workspaceFolder, relativeFile, previousHash);
-            return content;
+            return content !== undefined ? content : '';
         };
         
         // search correct line in document
@@ -73,7 +73,7 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
         
         this.fnGetContent = async () => {
             const content = await GitShow.getInstance().getFileContent(workspaceFolder, relativeFilePrevious, hashPrevious);
-            return content;
+            return content !== undefined ? content : '';
         };
         
         /* https://code.visualstudio.com/api/extension-guides/virtual-documents */
