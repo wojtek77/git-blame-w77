@@ -3,7 +3,7 @@
   "displayName": "Git Blame W77",
   "description": "It is an extension for VS code, which can show git blame in editor and can run git gui blame.",
   "publisher": "W77",
-  "version": "2.4.5",
+  "version": "2.4.6",
   "engines": {
     "vscode": "^1.75.0"
   },
@@ -92,6 +92,11 @@
           "type": ["boolean"],
           "default": true,
           "description": "Specifies whether to show in the context menu 'Git Blame Toggle'."
+        },
+        "gitBlameW77.hoverEnabled": {
+          "type": ["boolean"],
+          "default": true,
+          "description": "Determines whether hover show in extension. If FALSE it speeds up decoration rendering a lot."
         },
         "gitBlameW77.hoverShowLinkToGitGuiBlame": {
           "type": ["boolean"],

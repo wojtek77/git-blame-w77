@@ -41,6 +41,7 @@ gitBlameW77.gitBlameUrl | null | Specifies git blame URL e.g 'https://github.com
 gitBlameW77.dateLocale | "" (empty string) | Specifies locale for date e.g 'en-US'. More locales here https://www.w3schools.com/jsref/jsref_tolocalestring.asp or https://stackoverflow.com/questions/27939773/tolocaledatestring-short-format. When there is an empty string (default) then it take locale from system.
 gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or not in decoration.
 gitBlameW77.showInContextMenu | true | Specifies whether to show in the context menu 'Git Blame Toggle'.
+gitBlameW77.hoverEnabled | true | Determines whether hover show in extension. If FALSE it speeds up decoration rendering a lot.
 gitBlameW77.hoverShowLinkToGitGuiBlame | true | Specifies whether to show link to Git Gui Blame in hover of decoration. This functionality degrades performance when rendering decorations.
 
 ### Examples for "gitBlameW77.colors"
