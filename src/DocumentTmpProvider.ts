@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GitShow } from './GitShow';
 import { GitBlame } from './GitBlame';
+import { Util } from './Util';
 
 /**
  * Document tmp provider
@@ -37,7 +38,10 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
         } catch (e) {}
         
         /* https://code.visualstudio.com/api/extension-guides/virtual-documents */
-        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + relativeFile + ' @ ' + previousHash.substring(0,7));
+        const util = Util.getInstance();
+        const dirname = util.dirname(relativeFile);
+        const basename = util.basename(relativeFile);
+        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + dirname + previousHash.substring(0,7) + ' @ ' + basename);
         const doc = await vscode.workspace.openTextDocument(uri); // calls back into the provider
         if (line >= doc.lineCount) {
             line = (doc.lineCount > 1) ? doc.lineCount-1 : 1;
@@ -77,7 +81,10 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
         };
         
         /* https://code.visualstudio.com/api/extension-guides/virtual-documents */
-        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + relativeFilePrevious + ' @ ' + hashPrevious.substring(0,7));
+        const util = Util.getInstance();
+        const dirname = util.dirname(relativeFilePrevious);
+        const basename = util.basename(relativeFilePrevious);
+        const uri = vscode.Uri.parse(DocumentTmpProvider.scheme + ':' + dirname + hashPrevious.substring(0,7) + ' @ ' + basename);
         const doc = await vscode.workspace.openTextDocument(uri); // calls back into the provider
         if (linePrevious >= doc.lineCount) {
             linePrevious = (doc.lineCount > 1) ? doc.lineCount-1 : 1;
