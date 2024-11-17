@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import { Git } from './Git';
+import path from 'path';
 
 /**
  * Any simple util functions
@@ -14,6 +16,7 @@ export class Util {
         return this.instance;
     }
     
+    private readonly sep = path.sep;
     
     public dirname(filePath: string): string {
         const basename = this.basename(filePath);
@@ -31,14 +34,18 @@ export class Util {
             const res = editor.document.uri;
             const folder = vscode.workspace.getWorkspaceFolder(res);
             if (folder) {
-                return folder.uri.fsPath;
+                return folder.uri.fsPath + this.sep;
             }
+            // looking in git
+            const dirname = this.dirname(editor.document.fileName);
+            const gitRootDirectory = Git.getInstance().getGitRootDirectory(dirname);
+            return gitRootDirectory + this.sep;
         }
-        return '';
+        throw new Error('Is not open any document');
     }
     
     public relativeFile(workspaceFolder: string, filePath: string): string {
-        return filePath.replace(workspaceFolder, '').substring(1);
+        return filePath.substring(workspaceFolder.length);
     }
     
     /**

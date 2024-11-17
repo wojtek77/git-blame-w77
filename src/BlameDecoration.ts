@@ -23,23 +23,6 @@ export class BlameDecoration {
     private static gitBlameUrl?: string; // cache (it is set only once when it is opened workspace)
     private static gitRepositoryType = Git.REPOSITORY_TYPE_NONE; // cache (it is set only once when it is opened workspace)
     
-    public static async getGitBlameUrl() {
-        if (BlameDecoration.gitBlameUrl === undefined && vscode.workspace.workspaceFolders) {
-            let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
-            let gitRepositoryType;
-            if (gitBlameUrl === null) { // try automatically find URL
-                ({gitBlameUrl, gitRepositoryType} = await Git.getInstance().getGitBlameUrl());
-            } else if (gitBlameUrl === '') { // disable URL
-                gitRepositoryType = Git.REPOSITORY_TYPE_NONE;
-            } else { // own URL
-                gitRepositoryType = Git.REPOSITORY_TYPE_OWN;
-            }
-            BlameDecoration.gitBlameUrl = gitBlameUrl;
-            BlameDecoration.gitRepositoryType = gitRepositoryType;
-        }
-        return BlameDecoration.gitBlameUrl || '';
-    }
-    
     public activeEditor?: vscode.TextEditor;
     public isOpen: boolean = false;
     public lastSavedVersion?: number; // for clean document
@@ -104,7 +87,7 @@ export class BlameDecoration {
             if (this.activeEditor.document.isDirty) {
                 BlameDecoration.statusBarItem.hide();
             } else {
-                const gitBlameUrl = await BlameDecoration.getGitBlameUrl();
+                const gitBlameUrl = await this.getGitBlameUrl();
                 const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, BlameDecoration.gitRepositoryType, this.blameData);
                 new StatusBarItemManager(this.isDocumentTmp, this.workspaceFolder, gitBlameUrlFn).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
             }
@@ -125,7 +108,7 @@ export class BlameDecoration {
             return;
         }
         this.blameData = blameData;
-        const gitBlameUrl = await BlameDecoration.getGitBlameUrl();
+        const gitBlameUrl = await this.getGitBlameUrl();
         const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, BlameDecoration.gitRepositoryType, blameData);
         const decoration = new DecorationDataAllClean(this.isDocumentTmp, this.workspaceFolder, gitBlameUrlFn).getData(document, this.blameData);
         this.decoration = decoration;
@@ -152,5 +135,22 @@ export class BlameDecoration {
         }
         // if is in cache return undefined
         return;
+    }
+    
+    private async getGitBlameUrl() {
+        if (BlameDecoration.gitBlameUrl === undefined) {
+            let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
+            let gitRepositoryType;
+            if (gitBlameUrl === null) { // try automatically find URL
+                ({gitBlameUrl, gitRepositoryType} = await Git.getInstance().getGitBlameUrl(this.workspaceFolder));
+            } else if (gitBlameUrl === '') { // disable URL
+                gitRepositoryType = Git.REPOSITORY_TYPE_NONE;
+            } else { // own URL
+                gitRepositoryType = Git.REPOSITORY_TYPE_OWN;
+            }
+            BlameDecoration.gitBlameUrl = gitBlameUrl;
+            BlameDecoration.gitRepositoryType = gitRepositoryType;
+        }
+        return BlameDecoration.gitBlameUrl || '';
     }
 }

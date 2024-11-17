@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { Util } from "./Util";
 import { BlameData } from "./GitBlame";
 import { createHash } from 'crypto';
+import { execSync } from "child_process";
 
 /**
  * Represents function for git repository
@@ -38,10 +39,24 @@ export class Git {
         }
     }
 
-    public async getGitBlameUrl(workspaceFolder?: string) {
-        if (workspaceFolder === undefined) {
-            workspaceFolder = Util.getInstance().workspaceFolder();
+    public getGitRootDirectory(dirname: string) {
+        let cd;
+        if (dirname.match(/[\\]/)) { // if is Windows
+            cd = 'cd /d';
+        } else {
+            cd = 'cd';
         }
+        
+        // https://stackoverflow.com/questions/4443597/node-js-execute-system-command-synchronously
+        try {
+            const gitRootDirectory = execSync(`${cd} ${dirname} && git rev-parse --show-toplevel`, {encoding: 'utf8', timeout: 10000});
+            return gitRootDirectory.replace(/\n$/, '');
+        } catch (e) {
+            throw new Error('No git repository');
+        }
+    }
+    
+    public async getGitBlameUrl(workspaceFolder: string) {
         let cd;
         if (workspaceFolder.match(/[\\]/)) { // if is Windows
             cd = 'cd /d';
