@@ -92,51 +92,6 @@ export class GitBlame {
         }
     }
     
-    public async getGitBlameUrl(workspaceFolder?: string) {
-        if (workspaceFolder === undefined) {
-            workspaceFolder = Util.getInstance().workspaceFolder();
-        }
-        let cd;
-        if (workspaceFolder.match(/[\\]/)) { // if is Windows
-            cd = 'cd /d';
-        } else {
-            cd = 'cd';
-        }
-
-        const util = require('util');
-        const exec = util.promisify(require('child_process').exec);
-        try {
-            const { stdout, stderr } = await exec(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
-            const url = this.url(stdout);
-            return url;
-        } catch (e) {
-            const error = (e as Error);
-            if (!error.message.includes('git')) {
-                vscode.window.showErrorMessage(error.message);
-                throw e;
-            }
-        }
-        return '';
-    }
-    
-    private url(stdout: string) {
-        const remoteOriginUrl = stdout.trimEnd();
-        let url, s;
-        switch (true) {
-            case remoteOriginUrl.includes('git@github.com:'):
-                const a = remoteOriginUrl.split(':');
-                s = a[1].replace(/\.git$/, '');
-                url = `https://github.com/${s}/commit/` + '${hash}';
-                return url;
-            case remoteOriginUrl.includes('https://github.com/'):
-                s = remoteOriginUrl.replace('https://github.com/', '').replace(/\.git$/, '');
-                url = `https://github.com/${s}/commit/` + '${hash}';
-                return url;
-            default:
-                return '';
-        }
-    }
-
     private parse(blameText: string) {
         let blameData: BlameData[] = [];
         const blameArr = blameText.split('\n');

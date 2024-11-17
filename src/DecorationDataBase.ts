@@ -8,7 +8,7 @@ import { Util } from './Util';
  */
 export class DecorationDataBase {
     protected workspaceFolder?:string = undefined;
-    protected gitBlameUrl?:string = undefined;
+    protected gitBlameUrlFn?: (rec: BlameData) => string;
     protected colors = [];
     protected colorsUsedAsBackground = false;
     protected dateLocale?:string = undefined;
@@ -80,8 +80,8 @@ export class DecorationDataBase {
         m.supportHtml = false;
         m.isTrusted = true;
         const hash = rec.hash;
-        if (this.gitBlameUrl) {
-            const gitBlameUrl = this.gitBlameUrl.replace('${hash}', hash);
+        if (this.gitBlameUrlFn) {
+            const gitBlameUrl = this.gitBlameUrlFn(rec);
             m.appendText('Commit: ')
                 .appendMarkdown(`[${hash}](${gitBlameUrl})`);
         } else {

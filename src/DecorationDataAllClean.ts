@@ -7,10 +7,10 @@ import { DecorationDataBase } from './DecorationDataBase';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataAllClean extends DecorationDataBase {
-    public constructor(isDocumentTmp: boolean, workspaceFolder: string, gitBlameUrl?: string) {
+    public constructor(isDocumentTmp: boolean, workspaceFolder: string, gitBlameUrlFn?: (rec: BlameData) => string) {
         super();
         this.workspaceFolder = workspaceFolder;
-        this.gitBlameUrl = gitBlameUrl;
+        this.gitBlameUrlFn = gitBlameUrlFn;
         /* colors */
         const confColors = vscode.workspace.getConfiguration('gitBlameW77').colors;
         const themeKind = [vscode.ColorThemeKind.Dark, vscode.ColorThemeKind.HighContrast].includes(vscode.window.activeColorTheme.kind) ? 'dark' : 'light';
