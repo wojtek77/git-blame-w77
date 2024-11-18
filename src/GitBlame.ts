@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { Util } from "./Util";
+import path from "path";
 
 export type BlameData = {
     line: number;
@@ -66,7 +66,7 @@ export class GitBlame {
             hash = '"'+hash+'"'; // workaround if has special chars
         }
         let cd;
-        if (workspaceFolder.match(/[\\]/)) { // if is Windows
+        if (path.sep === '\\') { // if is Windows
             cd = 'cd /d';
         } else {
             cd = 'cd';

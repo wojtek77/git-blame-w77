@@ -1,3 +1,4 @@
+import path from "path";
 import * as vscode from "vscode";
 
 /**
@@ -39,7 +40,7 @@ export class GitShow {
         
         relativeFile = '"'+relativeFile+'"'; // workaround if has spaces
         let cd;
-        if (workspaceFolder.match(/[\\]/)) { // if is Windows
+        if (path.sep === '\\') { // if is Windows
             cd = 'cd /d';
         } else {
             cd = 'cd';

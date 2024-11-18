@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { Util } from "./Util";
 import { BlameData } from "./GitBlame";
 import { createHash } from 'crypto';
 import { execSync } from "child_process";
+import path from "path";
 
 /**
  * Represents function for git repository
@@ -41,7 +41,7 @@ export class Git {
 
     public getGitRootDirectory(dirname: string) {
         let cd;
-        if (dirname.match(/[\\]/)) { // if is Windows
+        if (path.sep === '\\') { // if is Windows
             cd = 'cd /d';
         } else {
             cd = 'cd';
@@ -58,7 +58,7 @@ export class Git {
     
     public async getGitBlameUrl(workspaceFolder: string) {
         let cd;
-        if (workspaceFolder.match(/[\\]/)) { // if is Windows
+        if (path.sep === '\\') { // if is Windows
             cd = 'cd /d';
         } else {
             cd = 'cd';

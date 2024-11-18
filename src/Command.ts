@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { exec } from "child_process";
 import { Util } from "./Util";
 import { GitBlame } from "./GitBlame";
+import path from "path";
 
 /**
  * Class for any simple commands
@@ -50,7 +51,7 @@ export class Command {
                     }
                 }
                 let cd;
-                if (workspaceFolder.match(/[\\]/)) { // if is Windows
+                if (path.sep === '\\') { // if is Windows
                     cd = 'cd /d';
                 } else {
                     cd = 'cd';

@@ -148,9 +148,9 @@ export class BlameDecoration {
             } else { // own URL
                 gitRepositoryType = Git.REPOSITORY_TYPE_OWN;
             }
-            BlameDecoration.gitBlameUrl = gitBlameUrl;
+            BlameDecoration.gitBlameUrl = gitBlameUrl as string;
             BlameDecoration.gitRepositoryType = gitRepositoryType;
         }
-        return BlameDecoration.gitBlameUrl || '';
+        return BlameDecoration.gitBlameUrl;
     }
 }

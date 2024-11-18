@@ -16,7 +16,6 @@ export class Util {
         return this.instance;
     }
     
-    private readonly sep = path.sep;
     
     public dirname(filePath: string): string {
         const basename = this.basename(filePath);
@@ -34,12 +33,12 @@ export class Util {
             const res = editor.document.uri;
             const folder = vscode.workspace.getWorkspaceFolder(res);
             if (folder) {
-                return folder.uri.fsPath + this.sep;
+                return folder.uri.fsPath + path.sep;
             }
             // looking in git
             const dirname = this.dirname(editor.document.fileName);
             const gitRootDirectory = Git.getInstance().getGitRootDirectory(dirname);
-            return gitRootDirectory + this.sep;
+            return gitRootDirectory + path.sep;
         }
         throw new Error('Is not open any document');
     }
