@@ -49,8 +49,10 @@ export class Git {
         
         // https://stackoverflow.com/questions/4443597/node-js-execute-system-command-synchronously
         try {
-            const gitRootDirectory = execSync(`${cd} ${dirname} && git rev-parse --show-toplevel`, {encoding: 'utf8', timeout: 10000});
-            return gitRootDirectory.replace(/\n$/, '');
+            let cdup = execSync(`${cd} ${dirname} && git rev-parse --show-cdup`, {encoding: 'utf8', timeout: 10000});
+            cdup = cdup.replace(/\n$/, '');
+            const gitRootDirectory = path.resolve(dirname, cdup);
+            return gitRootDirectory;
         } catch (e) {
             throw new Error('No git repository');
         }
