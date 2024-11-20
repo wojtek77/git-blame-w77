@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { Git } from './Git';
 import path from 'path';
-import { exec, ExecOptions, spawn } from 'child_process';
+import { exec, ExecOptions, execSync, ExecSyncOptionsWithStringEncoding, spawn } from 'child_process';
+import { ObjectEncodingOptions } from 'fs';
 
 /**
  * Any simple util functions
@@ -109,21 +110,30 @@ export class Util {
     }
     
     /**
+     * Run command by exec sync
+     * @param cmd 
+     * @param options 
+     * @returns 
+     */
+    public execSync(cmd: string, options: ExecSyncOptionsWithStringEncoding = {encoding: 'utf8', timeout: 10000}): string {
+        let result = execSync(cmd, options);
+        result = result.replace(/\n$/, '');
+        return result;
+    }
+    
+    /**
      * Run command by exec async
      * https://gist.github.com/miguelmota/e8fda506b764671745852c940cac4adb
      * @param cmd 
      * @param options 
      * @returns 
      */
-    public execAsync(cmd: string, options?: {encoding: "buffer" | "utf8" | null;} & ExecOptions): Promise<string> {
-        if (options === undefined) {
-            options = {encoding: "utf8"};
-        }
+    public execAsync(cmd: string, options: (ObjectEncodingOptions & ExecOptions) | undefined | null = {encoding: 'utf8'}): Promise<string> {
         return new Promise((resolve, reject) => {
             exec(cmd, options, (error, stdout, stderr) => {
                 if (error) return reject(error);
-                if (stderr) return reject(new Error(stderr));
-                resolve(stdout.replace(/\n$/, ''));
+                if (stderr) return reject(stderr);
+                resolve((stdout as string).replace(/\n$/, ''));
             });
         })
     }
