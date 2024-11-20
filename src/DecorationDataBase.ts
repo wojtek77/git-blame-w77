@@ -14,7 +14,7 @@ export class DecorationDataBase {
     protected dateLocale?:string = undefined;
     protected decorationShowHash = true;
     protected hoverEnabled = false;
-    protected hoverShowLinkToGitGuiBlame = true;
+    protected showLinkToGitGuiBlame = true;
     private hashColors: {[key: string]: string} = {};
     private j = 0; // iterator for colors
     
@@ -45,7 +45,7 @@ export class DecorationDataBase {
         }
         let hoverMessage;
         if (this.hoverEnabled) {
-            hoverMessage = this._lineMessage(rec, true, this.hoverShowLinkToGitGuiBlame);
+            hoverMessage = this._lineMessage(rec, true, this.showLinkToGitGuiBlame);
         }
         return {
             range: this._range(line),

@@ -42,7 +42,7 @@ gitBlameW77.dateLocale | "" (empty string) | Specifies locale for date e.g 'en-U
 gitBlameW77.decorationShowHash | true | Specifies whether to show commit hash or not in decoration.
 gitBlameW77.showInContextMenu | true | Specifies whether to show in the context menu 'Git Blame Toggle'.
 gitBlameW77.hoverEnabled | true | Determines whether hover show in extension. If FALSE it speeds up decoration rendering a lot.
-gitBlameW77.hoverShowLinkToGitGuiBlame | true | Specifies whether to show link to Git Gui Blame in hover of decoration. This functionality degrades performance when rendering decorations.
+gitBlameW77.showLinkToGitGuiBlame | true | Specifies whether to show link to Git Gui Blame in hover of the decoration or the status bar. This functionality degrades performance when rendering the decoration.
 
 ### Examples for "gitBlameW77.colors"
 

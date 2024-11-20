@@ -19,7 +19,7 @@ export class DecorationDataAllClean extends DecorationDataBase {
         this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
         this.decorationShowHash = vscode.workspace.getConfiguration('gitBlameW77').decorationShowHash;
         this.hoverEnabled = vscode.workspace.getConfiguration('editor.hover').enabled && vscode.workspace.getConfiguration('gitBlameW77').hoverEnabled;
-        this.hoverShowLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
+        this.showLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').showLinkToGitGuiBlame;
         this.noRecText = this._emptyLine;
     }
     

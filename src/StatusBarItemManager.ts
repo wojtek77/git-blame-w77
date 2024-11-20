@@ -12,7 +12,7 @@ export class StatusBarItemManager extends DecorationDataBase {
         this.workspaceFolder = workspaceFolder;
         this.gitBlameUrlFn = gitBlameUrlFn;
         this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
-        this.hoverShowLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
+        this.showLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').showLinkToGitGuiBlame;
     }
     
     public show(statusBarItem: vscode.StatusBarItem, activeEditor: vscode.TextEditor, blameData: BlameData[]) {
@@ -20,7 +20,7 @@ export class StatusBarItemManager extends DecorationDataBase {
         if (blameData[lineNumber] !== undefined && blameData[lineNumber].isCommitted) {
             const rec = blameData[lineNumber];
             statusBarItem.text = `Blame line ${lineNumber} ${rec.author}`;
-            statusBarItem.tooltip = this._lineMessage(rec, true, this.hoverShowLinkToGitGuiBlame);
+            statusBarItem.tooltip = this._lineMessage(rec, true, this.showLinkToGitGuiBlame);
             statusBarItem.show();
         } else {
             statusBarItem.hide();
