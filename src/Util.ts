@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Git } from './Git';
 import path from 'path';
+import { exec, ExecOptions, spawn } from 'child_process';
 
 /**
  * Any simple util functions
@@ -104,6 +105,54 @@ export class Util {
             minute: '2-digit',
             second: '2-digit',
             hour12: false
+        });
+    }
+    
+    /**
+     * Run command by exec async
+     * https://gist.github.com/miguelmota/e8fda506b764671745852c940cac4adb
+     * @param cmd 
+     * @param options 
+     * @returns 
+     */
+    public execAsync(cmd: string, options?: {encoding: "buffer" | "utf8" | null;} & ExecOptions): Promise<string> {
+        if (options === undefined) {
+            options = {encoding: "utf8"};
+        }
+        return new Promise((resolve, reject) => {
+            exec(cmd, options, (error, stdout, stderr) => {
+                if (error) return reject(error);
+                if (stderr) return reject(new Error(stderr));
+                resolve(stdout.replace(/\n$/, ''));
+            });
+        })
+    }
+    
+    /**
+     * Run command by spawn async
+     * https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct
+     * @param cmd 
+     * @param args 
+     * @returns 
+     */
+    public spawnAsync(cmd: string, args?: any): Promise<string> {
+        return new Promise((resolve, reject) => {
+            let buf = '';
+            let err = '';
+            const child = spawn(cmd, args);
+
+            child.stdout.on('data', (data: string) => {
+                buf += data;
+            });
+            child.stderr.on('data', (data: string) => {
+                err += data;
+            });
+            child.on('close', (code: number) => {
+                if (code !== 0) {
+                    return reject(new Error(err));
+                }
+                resolve(buf);
+            });
         });
     }
 }

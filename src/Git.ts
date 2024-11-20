@@ -3,6 +3,7 @@ import { BlameData } from "./GitBlame";
 import { createHash } from 'crypto';
 import { execSync } from "child_process";
 import path from "path";
+import { Util } from "./Util";
 
 /**
  * Represents function for git repository
@@ -66,11 +67,9 @@ export class Git {
             cd = 'cd';
         }
 
-        const util = require('util');
-        const exec = util.promisify(require('child_process').exec);
         try {
-            const { stdout, stderr } = await exec(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
-            const [url, type] = this.url(stdout);
+            const remoteOriginUrl = await Util.getInstance().execAsync(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
+            const [url, type] = this.url(remoteOriginUrl);
             return {gitBlameUrl: url, gitRepositoryType: type};
         } catch (e) {
             const error = (e as Error);
@@ -82,8 +81,7 @@ export class Git {
         return {gitBlameUrl: '', gitRepositoryType: Git.REPOSITORY_TYPE_NONE};
     }
     
-    private url(stdout: string) {
-        const remoteOriginUrl = stdout.trimEnd();
+    private url(remoteOriginUrl: string) {
         let url, s, type;
         switch (true) {
             case remoteOriginUrl.includes('git@github.com:'):

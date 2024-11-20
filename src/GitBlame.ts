@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import path from "path";
+import { Util } from "./Util";
 
 export type BlameData = {
     line: number;
@@ -38,29 +39,6 @@ export class GitBlame {
     }
 
     public async getBlameData(workspaceFolder: string, relativeFile: string, hash = '', line = 0, extraCmd = '', showErr = true) {
-        /* https://stackoverflow.com/questions/69704190/node-child-process-spawn-is-not-returning-data-correctly-when-using-with-funct */
-        const { spawn } = require('child_process');
-        function getChildProcessOutput(program: string, args?: any): Promise<string> {
-            return new Promise((resolve, reject) => {
-                let buf = '';
-                let err = '';
-                const child = spawn(program, args);
-
-                child.stdout.on('data', (data: string) => {
-                    buf += data;
-                });
-                child.stderr.on('data', (data: string) => {
-                    err += data;
-                });
-                child.on('close', (code: number) => {
-                    if (code !== 0) {
-                        return reject(new Error(err));
-                    }
-                    resolve(buf);
-                });
-            });
-        }
-        
         relativeFile = '"'+relativeFile+'"'; // workaround if has spaces
         if (hash) {
             hash = '"'+hash+'"'; // workaround if has special chars
@@ -74,7 +52,7 @@ export class GitBlame {
         const lineRange = (line !== 0) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await getChildProcessOutput(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${relativeFile}`, {
+            const output = await Util.getInstance().spawnAsync(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${relativeFile}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);
