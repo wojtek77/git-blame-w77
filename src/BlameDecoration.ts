@@ -89,7 +89,7 @@ export class BlameDecoration {
             } else {
                 const gitBlameUrl = await this.getGitBlameUrl();
                 const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, BlameDecoration.gitRepositoryType, this.blameData);
-                new StatusBarItemManager(this.isDocumentTmp, this.workspaceFolder, gitBlameUrlFn).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
+                new StatusBarItemManager(this.workspaceFolder, gitBlameUrlFn).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
             }
         }
     }
@@ -110,7 +110,7 @@ export class BlameDecoration {
         this.blameData = blameData;
         const gitBlameUrl = await this.getGitBlameUrl();
         const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, BlameDecoration.gitRepositoryType, blameData);
-        const decoration = new DecorationDataAllClean(this.isDocumentTmp, this.workspaceFolder, gitBlameUrlFn).getData(document, this.blameData);
+        const decoration = new DecorationDataAllClean(this.workspaceFolder, gitBlameUrlFn).getData(document, this.blameData);
         this.decoration = decoration;
         this.lastSavedVersion = document.version;
         return decoration;

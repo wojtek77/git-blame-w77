@@ -7,12 +7,12 @@ import { DecorationDataBase as DecorationDataBase } from './DecorationDataBase';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class StatusBarItemManager extends DecorationDataBase {
-    public constructor(isDocumentTmp: boolean, workspaceFolder: string, gitBlameUrlFn?: (rec: BlameData) => string) {
+    public constructor(workspaceFolder: string, gitBlameUrlFn?: (rec: BlameData) => string) {
         super();
         this.workspaceFolder = workspaceFolder;
         this.gitBlameUrlFn = gitBlameUrlFn;
         this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
-        this.hoverShowLinkToGitGuiBlame = !isDocumentTmp && vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
+        this.hoverShowLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
     }
     
     public show(statusBarItem: vscode.StatusBarItem, activeEditor: vscode.TextEditor, blameData: BlameData[]) {

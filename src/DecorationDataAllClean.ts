@@ -7,7 +7,7 @@ import { DecorationDataBase } from './DecorationDataBase';
  * @author Wojciech Brüggemann <wojtek77@o2.pl>
  */
 export class DecorationDataAllClean extends DecorationDataBase {
-    public constructor(isDocumentTmp: boolean, workspaceFolder: string, gitBlameUrlFn?: (rec: BlameData) => string) {
+    public constructor(workspaceFolder: string, gitBlameUrlFn?: (rec: BlameData) => string) {
         super();
         this.workspaceFolder = workspaceFolder;
         this.gitBlameUrlFn = gitBlameUrlFn;
@@ -19,7 +19,7 @@ export class DecorationDataAllClean extends DecorationDataBase {
         this.dateLocale = vscode.workspace.getConfiguration('gitBlameW77').dateLocale || undefined;
         this.decorationShowHash = vscode.workspace.getConfiguration('gitBlameW77').decorationShowHash;
         this.hoverEnabled = vscode.workspace.getConfiguration('editor.hover').enabled && vscode.workspace.getConfiguration('gitBlameW77').hoverEnabled;
-        this.hoverShowLinkToGitGuiBlame = !isDocumentTmp && vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
+        this.hoverShowLinkToGitGuiBlame = vscode.workspace.getConfiguration('gitBlameW77').hoverShowLinkToGitGuiBlame;
         this.noRecText = this._emptyLine;
     }
     

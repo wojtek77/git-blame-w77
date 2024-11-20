@@ -3,6 +3,7 @@ import { exec } from "child_process";
 import { Util } from "./Util";
 import { GitBlame } from "./GitBlame";
 import path from "path";
+import { DocumentTmpProvider } from "./DocumentTmpProvider";
 
 /**
  * Class for any simple commands
@@ -29,6 +30,10 @@ export class Command {
     private async runGitGuiBlame(isHash: boolean) {
         const activeEditor = vscode.window.activeTextEditor
         if (activeEditor) {
+            if (activeEditor.document.uri.scheme === DocumentTmpProvider.scheme) {
+                vscode.window.showInformationMessage('Cannot open Git Gui Blame for TMP document');
+                return;
+            }
             const util = Util.getInstance();
             const fileName = activeEditor.document.fileName;
             const workspaceFolder = util.workspaceFolder();
