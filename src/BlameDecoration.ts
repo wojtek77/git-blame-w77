@@ -20,8 +20,6 @@ export class BlameDecoration {
             margin: '0 10px 0 0',
         }
     });
-    private static gitBlameUrl?: string; // cache (it is set only once when it is opened workspace)
-    private static gitRepositoryType = Git.REPOSITORY_TYPE_NONE; // cache (it is set only once when it is opened workspace)
     
     public activeEditor?: vscode.TextEditor;
     public isOpen: boolean = false;
@@ -87,8 +85,8 @@ export class BlameDecoration {
             if (this.activeEditor.document.isDirty) {
                 BlameDecoration.statusBarItem.hide();
             } else {
-                const gitBlameUrl = await this.getGitBlameUrl();
-                const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, BlameDecoration.gitRepositoryType, this.blameData);
+                const {gitBlameUrl, gitRepositoryType} = await Git.getInstance().getGitBlameUrl(this.workspaceFolder);
+                const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, gitRepositoryType, this.blameData);
                 new StatusBarItemManager(this.workspaceFolder, gitBlameUrlFn).show(BlameDecoration.statusBarItem, activeEditor, this.blameData);
             }
         }
@@ -108,8 +106,8 @@ export class BlameDecoration {
             return;
         }
         this.blameData = blameData;
-        const gitBlameUrl = await this.getGitBlameUrl();
-        const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, BlameDecoration.gitRepositoryType, blameData);
+        const {gitBlameUrl, gitRepositoryType} = await Git.getInstance().getGitBlameUrl(this.workspaceFolder);
+        const gitBlameUrlFn = Git.getInstance().getGitBlameUrlFn(gitBlameUrl, gitRepositoryType, blameData);
         const decoration = new DecorationDataAllClean(this.workspaceFolder, gitBlameUrlFn).getData(document, this.blameData);
         this.decoration = decoration;
         this.lastSavedVersion = document.version;
@@ -135,22 +133,5 @@ export class BlameDecoration {
         }
         // if is in cache return undefined
         return;
-    }
-    
-    private async getGitBlameUrl() {
-        if (BlameDecoration.gitBlameUrl === undefined) {
-            let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
-            let gitRepositoryType;
-            if (gitBlameUrl === null) { // try automatically find URL
-                ({gitBlameUrl, gitRepositoryType} = await Git.getInstance().getGitBlameUrl(this.workspaceFolder));
-            } else if (gitBlameUrl === '') { // disable URL
-                gitRepositoryType = Git.REPOSITORY_TYPE_NONE;
-            } else { // own URL
-                gitRepositoryType = Git.REPOSITORY_TYPE_OWN;
-            }
-            BlameDecoration.gitBlameUrl = gitBlameUrl as string;
-            BlameDecoration.gitRepositoryType = gitRepositoryType;
-        }
-        return BlameDecoration.gitBlameUrl;
     }
 }

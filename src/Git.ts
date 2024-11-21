@@ -1,7 +1,6 @@
 import * as vscode from "vscode";
 import { BlameData } from "./GitBlame";
 import { createHash } from 'crypto';
-import { execSync } from "child_process";
 import path from "path";
 import { Util } from "./Util";
 
@@ -18,9 +17,11 @@ export class Git {
         return this.instance;
     }
     
-    public static readonly REPOSITORY_TYPE_NONE = 'none';
-    public static readonly REPOSITORY_TYPE_OWN = 'own';
-    public static readonly REPOSITORY_TYPE_GITHUB = 'github';
+    private static readonly REPOSITORY_TYPE_NONE = 'none';
+    private static readonly REPOSITORY_TYPE_OWN = 'own';
+    private static readonly REPOSITORY_TYPE_GITHUB = 'github';
+    
+    private gitBlameUrlCache: {[workspaceFolder: string]: {url: string, type: string}} = {};
     
     public getGitBlameUrlFn(gitBlameUrl: string, gitRepositoryType: string, blameData: BlameData[]) {
         switch (gitRepositoryType) {
@@ -59,25 +60,37 @@ export class Git {
     }
     
     public async getGitBlameUrl(workspaceFolder: string) {
-        let cd;
-        if (path.sep === '\\') { // if is Windows
-            cd = 'cd /d';
-        } else {
-            cd = 'cd';
+        let gitBlameUrl = vscode.workspace.getConfiguration('gitBlameW77').gitBlameUrl;
+        let gitRepositoryType;
+        if (gitBlameUrl === null) { // try automatically find URL
+            ({gitBlameUrl, gitRepositoryType} = await this.getGitBlameUrlFromRep(workspaceFolder));
+        } else if (gitBlameUrl === '') { // disable URL
+            gitRepositoryType = Git.REPOSITORY_TYPE_NONE;
+        } else { // own URL
+            gitRepositoryType = Git.REPOSITORY_TYPE_OWN;
         }
-
-        try {
-            const remoteOriginUrl = await Util.getInstance().execAsync(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
-            const [url, type] = this.url(remoteOriginUrl);
-            return {gitBlameUrl: url, gitRepositoryType: type};
-        } catch (e) {
-            const error = (e as Error);
-            if (!error.message.includes('git')) {
-                vscode.window.showErrorMessage(error.message);
-                throw e;
+        return {gitBlameUrl: gitBlameUrl, gitRepositoryType: gitRepositoryType};
+    }
+    
+    private async getGitBlameUrlFromRep(workspaceFolder: string) {
+        if (this.gitBlameUrlCache[workspaceFolder] === undefined) {
+            let url, type;
+            try {
+                const cd = (path.sep === '\\') ? 'cd /d' : 'cd'; // diff between Windows and Linux
+                const remoteOriginUrl = await Util.getInstance().execAsync(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
+                [url, type] = this.url(remoteOriginUrl);
+            } catch (e) {
+                const error = (e as Error);
+                if (!error.message.includes('git')) {
+                    vscode.window.showErrorMessage(error.message);
+                    throw e;
+                }
+                url = '';
+                type = Git.REPOSITORY_TYPE_NONE;
             }
+            this.gitBlameUrlCache[workspaceFolder] = {url: url, type: type};
         }
-        return {gitBlameUrl: '', gitRepositoryType: Git.REPOSITORY_TYPE_NONE};
+        return {gitBlameUrl: this.gitBlameUrlCache[workspaceFolder].url, gitRepositoryType: this.gitBlameUrlCache[workspaceFolder].type};
     }
     
     private url(remoteOriginUrl: string) {
