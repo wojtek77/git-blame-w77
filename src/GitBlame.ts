@@ -39,9 +39,14 @@ export class GitBlame {
     }
 
     public async getBlameData(workspaceFolder: string, relativeFile: string, hash = '', line = 0, extraCmd = '', showErr = true) {
-        relativeFile = '"'+relativeFile+'"'; // workaround if has spaces
+        let dirn
+        let fname
+        dirn = Util.getInstance().dirname(workspaceFolder + "/" + relativeFile);
+        fname = Util.getInstance().basename(workspaceFolder + "/" + relativeFile);
+        dirn = '"' + dirn + '"'; // workaround if has spaces
+        fname = '"' + fname + '"'; // workaround if has spaces
         if (hash) {
-            hash = '"'+hash+'"'; // workaround if has special chars
+            hash = '"' + hash + '"'; // workaround if has special chars
         }
         let cd;
         if (path.sep === '\\') { // if is Windows
@@ -50,9 +55,9 @@ export class GitBlame {
             cd = 'cd';
         }
         const lineRange = (line !== 0) ? `-L ${line},${line}` : '';
-        
+
         try {
-            const output = await Util.getInstance().spawnAsync(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${relativeFile}`, {
+            const output = await Util.getInstance().spawnAsync(`${cd} ${dirn} && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${fname}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);
@@ -69,7 +74,7 @@ export class GitBlame {
             }
         }
     }
-    
+
     private parse(blameText: string) {
         let blameData: BlameData[] = [];
         const blameArr = blameText.split('\n');
@@ -91,11 +96,11 @@ export class GitBlame {
                 const committerTime = +chunk[7].slice(15);
                 const committerTz = chunk[8].slice(13);
                 const summary = chunk[9].slice(8);
-                
+
                 // if (line !== +hashArr[2] as unknown as number) {
                 //     throw new Error('line !== hashArr[2]');
                 // }
-                
+
                 let previousArr;
                 let filename;
                 let text;
@@ -105,7 +110,7 @@ export class GitBlame {
                         filename = chunk[11].slice(9);
                         text = chunk[12].slice(1);
                         break;
-                        case 12:
+                    case 12:
                         filename = chunk[10].slice(9);
                         text = chunk[11].slice(1);
                         break;
@@ -134,12 +139,12 @@ export class GitBlame {
                     isCommitted: hash !== '0000000000000000000000000000000000000000',
                     isDiffAuthorCommitter: authorTime !== committerTime || author !== committer || authorMail !== committerMail,
                 } as BlameData;
-                
+
                 line += 1;
                 chunk = [];
             }
         }
-        
+
         return blameData;
     }
 }
