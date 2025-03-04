@@ -144,5 +144,8 @@ Locale "sv-SE"\
 Does not show commit hash in decoration\
 ![Git Blame screeshot 7](images/screenshot7.png)
 
+## Support me
+[![ko-fi](images/ko-fi.png)](https://ko-fi.com/w77w77)
+
 ## Other
 Colors made by [Bluloco Dark Theme](https://marketplace.visualstudio.com/items?itemName=uloco.theme-bluloco-dark) and [Bluloco Dark Muted W77](https://marketplace.visualstudio.com/items?itemName=W77.bluloco-dark-muted-theme-w77)
