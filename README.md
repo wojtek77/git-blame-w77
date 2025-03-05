@@ -6,6 +6,7 @@ It is an extension for VS code, which can show git blame in editor and can run g
 ## Features
 - Show previously blame in two ways, simple or by "Ignore Rev".
 - Can show GitHub link exactly with file and line.
+- Can works with the nested repository or many repositories (multi-root workspaces).
 - Can works without opened workspace, just drag the file into the editor.
 - Specify colors for Dark and Light theme
 - Possibility to run Git Gui Blame (e.g for check changes in line).

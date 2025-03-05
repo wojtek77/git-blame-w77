@@ -32,11 +32,6 @@ export class Util {
     public workspaceFolder(): string {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
-            const res = editor.document.uri;
-            const folder = vscode.workspace.getWorkspaceFolder(res);
-            if (folder) {
-                return folder.uri.fsPath + path.sep;
-            }
             // looking in git
             const dirname = this.dirname(editor.document.fileName);
             const gitRootDirectory = Git.getInstance().getGitRootDirectory(dirname);
