@@ -25,7 +25,7 @@ export class GitShow {
         }
         
         try {
-            const content = await Util.getInstance().spawnAsync(`${cd} ${workspaceFolder} && git show ${hash}:${relativeFile}`, {
+            const content = await Util.getInstance().spawnAsync(`${cd} "${workspaceFolder}" && git show ${hash}:${relativeFile}`, {
                 shell: true
             });
             return content;

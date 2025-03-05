@@ -61,7 +61,7 @@ export class Command {
                 } else {
                     cd = 'cd';
                 }
-                const cmd = `${cd} ${workspaceFolder} && git gui blame --line=${lineNumber} ${hash} ${relativeFile}`;
+                const cmd = `${cd} "${workspaceFolder}" && git gui blame --line=${lineNumber} ${hash} ${relativeFile}`;
                 exec(cmd, (error, stdout, stderr) => {
                     if (error?.code === 1) { // no installed Git Gui
                         vscode.window.showInformationMessage('Is not installed Git Gui');

@@ -52,7 +52,7 @@ export class GitBlame {
         const lineRange = (line !== 0) ? `-L ${line},${line}` : '';
         
         try {
-            const output = await Util.getInstance().spawnAsync(`${cd} ${workspaceFolder} && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${relativeFile}`, {
+            const output = await Util.getInstance().spawnAsync(`${cd} "${workspaceFolder}" && git blame --line-porcelain ${lineRange} ${extraCmd} ${hash} -- ${relativeFile}`, {
                 shell: true
             });
             const blameData = this.parse(output as string);

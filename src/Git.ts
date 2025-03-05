@@ -51,7 +51,7 @@ export class Git {
         
         // https://stackoverflow.com/questions/4443597/node-js-execute-system-command-synchronously
         try {
-            const cdup = Util.getInstance().execSync(`${cd} ${dirname} && git rev-parse --show-cdup`);
+            const cdup = Util.getInstance().execSync(`${cd} "${dirname}" && git rev-parse --show-cdup`);
             const gitRootDirectory = path.resolve(dirname, cdup);
             return gitRootDirectory;
         } catch (e) {
@@ -77,7 +77,7 @@ export class Git {
             let url, type;
             try {
                 const cd = (path.sep === '\\') ? 'cd /d' : 'cd'; // diff between Windows and Linux
-                const remoteOriginUrl = await Util.getInstance().execAsync(`${cd} ${workspaceFolder} && git config --get remote.origin.url`);
+                const remoteOriginUrl = await Util.getInstance().execAsync(`${cd} "${workspaceFolder}" && git config --get remote.origin.url`);
                 [url, type] = this.url(remoteOriginUrl);
             } catch (e) {
                 const error = (e as Error);
