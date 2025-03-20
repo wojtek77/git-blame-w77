@@ -29,7 +29,7 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
         };
         
         // search correct line in document
-        const extraCmd = `--ignore-rev ${hash}`;
+        const extraCmd = `-w --ignore-rev ${hash}`;
         try {
             const blameData = await GitBlame.getInstance().getBlameData(workspaceFolder, relativeFile, hash+'^!', line, extraCmd, false);
             if (blameData !== undefined) {
@@ -56,7 +56,7 @@ export class DocumentTmpProvider implements vscode.TextDocumentContentProvider {
     }
     
     public async createDocBlamePreviousIgnoreRev(workspaceFolder: string, relativeFile: string, hash: string, line: number) {
-        const extraCmd = `--ignore-rev ${hash}`;
+        const extraCmd = `-w --ignore-rev ${hash}`;
         const blameData = await GitBlame.getInstance().getBlameData(workspaceFolder, relativeFile, hash, line, extraCmd);
         if (blameData === undefined) {
             return;
